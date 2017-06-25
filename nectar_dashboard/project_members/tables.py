@@ -27,6 +27,8 @@ from openstack_dashboard import api
 
 from .constants import PROJECTS_ADD_MEMBER_URL
 
+# jt
+from . import keystone as keystone_api
 
 LOG = logging.getLogger(__name__)
 
@@ -60,7 +62,7 @@ class RemoveMembers(tables.DeleteAction):
         LOG.info('Removing user %s from project %s.' % (user_obj.id,
                                                       project_id))
         role_id = getattr(settings, 'KEYSTONE_MEMBER_ROLE_ID', '1')
-        api.keystone.remove_tenant_user_role(request,
+        keystone_api.remove_tenant_user_role(request,
                                              project=project_id,
                                              user=user_obj.id,
                                              role=role_id)

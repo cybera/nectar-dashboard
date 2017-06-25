@@ -26,29 +26,25 @@ from horizon import messages
 
 from openstack_dashboard import api
 
-from . import api as api_ext
-
+# jt
+from . import keystone as keystone_api
 
 LOG = logging.getLogger(__name__)
 
 
 class AddUserToProjectForm(forms.SelfHandlingForm):
-    email = forms.EmailField(label=mark_safe("User's AAF email address"),
+    email = forms.EmailField(label=mark_safe("User's Rapid Access Cloud email address"),
                              required=True)
 
     def handle(self, request, data):
         project_id = request.user.tenant_id
         role_id = getattr(settings, 'KEYSTONE_MEMBER_ROLE_ID', '1')
 
-        try:
-            user = api_ext.user_get_by_name(request, data['email'])
-            api.keystone.add_tenant_user_role(request,
-                                              project=project_id,
-                                              user=user.id,
-                                              role=role_id)
-            messages.success(request,
-                             _('User added successfully.'))
-        except:
-            exceptions.handle(request, _('Unable to add user to project.'))
-            return False
+        user = keystone_api.user_get_by_name(request, data['email'])
+        keystone_api.add_tenant_user_role(request,
+                                          project=project_id,
+                                          user=user.id,
+                                          role=role_id)
+        messages.success(request,
+                         _('User added successfully.'))
         return True

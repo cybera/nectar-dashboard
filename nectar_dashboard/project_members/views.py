@@ -31,6 +31,10 @@ from .constants import PROJECTS_INDEX_VIEW_TEMPLATE
 from .forms import AddUserToProjectForm
 from .tables import ProjectMembersTable
 
+# jt
+from . import keystone as keystone_api
+import logging
+LOG = logging.getLogger(__name__)
 
 class User(object):
     def __init__(self, user_dict):
@@ -41,21 +45,20 @@ class ProjectManageMixin(object):
     def _get_project(self):
         if not hasattr(self, "_project"):
             tenant_id = self.request.user.tenant_id
-            self._project = api.keystone.tenant_get(self.request, tenant_id)
+            self._project = keystone_api.tenant_get(self.request, tenant_id)
         return self._project
 
     def _get_project_members(self):
         if not hasattr(self, "_project_members"):
             tenant_id = self.request.user.tenant_id
             member_role_id = getattr(settings, 'KEYSTONE_MEMBER_ROLE_ID', '1')
-            project_members = []
-            assignments = api.keystone.role_assignments_list(
-                self.request,
-                project=tenant_id,
-                role=member_role_id,
-                include_names=True)
-            for a in assignments:
-                project_members.append(User(a.user))
+	    users = keystone_api.user_list(
+		    self.request,
+		    project=tenant_id)
+	    project_members = []
+	    for user in users:
+		if user.name != "admin" and user.name != "cyberabot":
+		    project_members.append(user)
             self._project_members = project_members
 
         return self._project_members
