@@ -51,7 +51,9 @@ class ProjectManageMixin(object):
     def _get_project_members(self):
         if not hasattr(self, "_project_members"):
             tenant_id = self.request.user.tenant_id
-            member_role_id = getattr(settings, 'KEYSTONE_MEMBER_ROLE_ID', '1')
+            project_admin_user_id = self.request.user.id
+            role = keystone_api.get_role_by_name(self.request, project_admin_user_id, tenant_id, "_member_")
+            member_role_id = role.id
 	    users = keystone_api.user_list(
 		    self.request,
 		    project=tenant_id)

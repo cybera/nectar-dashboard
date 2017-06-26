@@ -552,6 +552,17 @@ def role_list(request):
     return keystoneclient(request, admin=True).roles.list()
 
 
+def get_role_by_name(request, user_id, project_id, role_name):
+    manager = keystoneclient(request, admin=True).roles
+    if VERSIONS.active < 3:
+        roles = manager.roles_for_user(user_id, project_id)
+    else:
+        roles = manager.list(user=user_id, domain="default", project=project_id)
+
+    for role in roles:
+        if role.name == role_name:
+            return role
+
 def roles_for_user(request, user, project=None, domain=None):
     """Returns a list of user roles scoped to a project or domain."""
     manager = keystoneclient(request, admin=True).roles

@@ -59,13 +59,14 @@ class RemoveMembers(tables.DeleteAction):
     def action(self, request, obj_id):
         user_obj = self.table.get_object_by_id(obj_id)
         project_id = request.user.tenant_id
+        project_admin_user_id = request.user.id
         LOG.info('Removing user %s from project %s.' % (user_obj.id,
                                                       project_id))
-        role_id = getattr(settings, 'KEYSTONE_MEMBER_ROLE_ID', '1')
+        role = keystone_api.get_role_by_name(request, project_admin_user_id, project_id, "_member_")
         keystone_api.remove_tenant_user_role(request,
                                              project=project_id,
                                              user=user_obj.id,
-                                             role=role_id)
+                                             role=role.id)
 
 
 class AddMembersLink(tables.LinkAction):
