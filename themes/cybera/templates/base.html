@@ -42,7 +42,7 @@
                 <div class="page-breadcrumb">
 
 								  {% comment "jt" %}{% endcomment %}
-                	{% if request.user.is_authenticated and message != '' %}
+                	{% if request.user.is_authenticated and message %}
                   	{% autoescape off %}
                   	<p class="alert alert-rac">{{ message }}</p>
                   	{% endautoescape %}
