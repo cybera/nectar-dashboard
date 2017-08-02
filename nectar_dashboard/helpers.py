@@ -94,8 +94,7 @@ def get_master_quotas(request):
         db = _dbconnect()
         c = db.cursor()
         query = "SELECT resource, quota from quotas where project_id = %s"
-        data = (request.user.tenant_id)
-        c.execute(query, data)
+        c.execute(query, [request.user.tenant_id])
         rows = c.fetchall()
         for row in rows:
             quotas[row[0]] = row[1]
@@ -110,8 +109,7 @@ def get_rac_usage(request):
         db = _dbconnect()
         c = db.cursor()
         query = "select resource, sum(in_use) as in_use from resource_usage where project_id = %s group by resource"
-        data = (request.user.tenant_id)
-        c.execute(query, data)
+        c.execute(query, [request.user.tenant_id])
         rows = c.fetchall()
         for row in rows:
             usage[row[0]] = row[1]
