@@ -4,7 +4,11 @@ from openstack_dashboard.dashboards.project.overview import views
 from nectar_dashboard import helpers
 
 class CyberaProjectOverview(views.ProjectOverview):
+    table_class = usage.ProjectUsageTable
     usage_class = usage.ProjectUsage
+    template_name = 'project/overview/usage.html'
+    csv_response_class = views.ProjectUsageCsvRenderer
+
     def get_data(self):
 	try:
 	    project_id = self.kwargs.get('project_id', self.request.user.tenant_id)
