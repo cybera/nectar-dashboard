@@ -62,11 +62,10 @@ class RemoveMembers(tables.DeleteAction):
         project_admin_user_id = request.user.id
         LOG.info('Removing user %s from project %s.' % (user_obj.id,
                                                       project_id))
-        role = keystone_api.get_role_by_name(request, project_admin_user_id, project_id, "_member_")
         keystone_api.remove_tenant_user_role(request,
                                              project=project_id,
                                              user=user_obj.id,
-                                             role=role.id)
+                                             role="9fe2ff9ee4384b1894a90878d3e92bab")
 
 
 class AddMembersLink(tables.LinkAction):

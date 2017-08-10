@@ -39,13 +39,12 @@ class AddUserToProjectForm(forms.SelfHandlingForm):
     def handle(self, request, data):
         project_id = request.user.tenant_id
         project_admin_user_id = request.user.id
-        role = keystone_api.get_role_by_name(request, project_admin_user_id, project_id, "_member_")
 
         user = keystone_api.user_get_by_name(request, data['email'])
         keystone_api.add_tenant_user_role(request,
                                           project=project_id,
                                           user=user.id,
-                                          role=role.id)
+                                          role="9fe2ff9ee4384b1894a90878d3e92bab")
         messages.success(request,
                          _('User added successfully.'))
         return True
