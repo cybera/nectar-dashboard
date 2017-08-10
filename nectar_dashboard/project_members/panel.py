@@ -22,4 +22,3 @@ import horizon
 class Members(horizon.Panel):
     name = _("Project Admin")
     slug = 'members'
-    #permissions = ('openstack.roles.tenantmanager',)
