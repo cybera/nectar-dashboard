@@ -18,7 +18,15 @@ from django.utils.translation import ugettext_lazy as _
 
 import horizon
 
+from . import keystone as keystone_api
 
 class Members(horizon.Panel):
     name = _("Project Admin")
     slug = 'members'
+
+    def allowed(self, context):
+	request = context['request']
+	for role in request.user.roles:
+	    if role['name'] == 'Project Admin':
+                return True
+        return False
