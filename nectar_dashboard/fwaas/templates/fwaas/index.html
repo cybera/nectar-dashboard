@@ -19,3 +19,26 @@
   </div>
 </div>
 {% endblock %}
+
+<script>
+$("btn_launch").click(fucntion(){
+  $.post("project/fwaas/launch", function(data, status){
+
+  })
+})
+$("btn_backup").click(fucntion(){
+  $.post("project/fwaas/backup", function(data, status){
+
+  })
+})
+$("btn_recover").click(fucntion(){
+  $.post("project/fwaas/recover", function(data, status){
+
+  })
+})
+$("btn_upgrade").click(fucntion(){
+  $.post("project/fwaas/upgrade", function(data, status){
+
+  })
+})
+</script>

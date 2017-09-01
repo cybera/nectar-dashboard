@@ -2,8 +2,6 @@ from django.utils.translation import ugettext_lazy as _
 
 import horizon
 
-import .keystone as keystone_api
-
 class Fwaas(horizon.Panel):
 	name = _("FWaaS")
 	slug = 'fwaas'
