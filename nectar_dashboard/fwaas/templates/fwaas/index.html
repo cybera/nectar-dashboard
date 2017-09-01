@@ -23,22 +23,22 @@
 <script>
 $("btn_launch").click(fucntion(){
   $.post("project/fwaas/launch", function(data, status){
-
+    alert("Data: " + data + "\nStatus: " + status);
   })
 })
 $("btn_backup").click(fucntion(){
   $.post("project/fwaas/backup", function(data, status){
-
+    alert("Data: " + data + "\nStatus: " + status);
   })
 })
 $("btn_recover").click(fucntion(){
   $.post("project/fwaas/recover", function(data, status){
-
+    alert("Data: " + data + "\nStatus: " + status);
   })
 })
 $("btn_upgrade").click(fucntion(){
   $.post("project/fwaas/upgrade", function(data, status){
-
+    alert("Data: " + data + "\nStatus: " + status);
   })
 })
 </script>
