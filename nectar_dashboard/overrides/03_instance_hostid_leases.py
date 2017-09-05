@@ -2,6 +2,9 @@ from openstack_dashboard.dashboards.project.instances import views as instances_
 from openstack_dashboard.dashboards.project.instances import tabs as instances_tabs
 
 from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext_lazy as _
+
+from horizon import exceptions
 from horizon import tabs
 from horizon.utils import memoized
 from openstack_dashboard import api
