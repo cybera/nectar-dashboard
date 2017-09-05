@@ -9,7 +9,7 @@
     {% endfor %}
   </select>
 
-  <select name="from" style="margin-top: 10px; padding-left: 5px; padding-right: 25px">
+  <select name="instance" style="margin-top: 10px; padding-left: 5px; padding-right: 25px">
   {% for instance in instances %}
     {% if instance.id == request.GET.instance %}
       <option selected value="{{ instance.id }}">{{ instance.name }}</option>
