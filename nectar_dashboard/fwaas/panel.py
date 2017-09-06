@@ -7,8 +7,9 @@ class Fwaas(horizon.Panel):
 	slug = 'fwaas'
 
 	def allowed(self, context):
-		request = context['request']
-		for role in request.user.roles:
-			if role['name'] == 'FWaaS':
-				return True
-			return False
+            return True
+            request = context['request']
+            for role in request.user.roles:
+                    if role['name'] == 'FWaaS':
+                            return True
+                    return False

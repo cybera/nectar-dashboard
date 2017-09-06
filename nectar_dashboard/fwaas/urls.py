@@ -17,7 +17,8 @@
 from django.conf.urls import patterns
 from django.conf.urls import url
 
-import .views
+from nectar_dashboard.fwaas import views
+
 
 urlpatterns = patterns('',
     url(r'^$', views.FwaasView.as_view(), name='index'),
