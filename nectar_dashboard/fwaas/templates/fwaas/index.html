@@ -13,8 +13,42 @@
     <div class="btn-group btn-group-lg" role="group">
       <button id="btn_launch" type="button" class="btn">Launch</button>
       <button id="btn_backup" type="button" class="btn">Backup</button>
-      <button id="btn_recover" type="button" class="btn">Recover</button>
+      <button id="btn_recover_modal" type="button" class="btn" data-toggle="modal" data-target="#modal_recover">Recover</button>
       <button id="btn_upgrade" type="button" class="btn">Upgrade</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modal_recover" tabindex="-1" role="dialog" aria-labelledby="recovery_modal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="recovery_modal">Recover</h4>
+      </div>
+      <div class="modal-body">
+        <table class="table table-striped">
+          <thead>
+            <tr class="table_column_header">
+              <th class="normal_column">Date</th>
+              <th class="actions_column">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for b in backups %}
+            <tr>
+              <td class="normal_column">{{ b.date }}</td>
+              <td class="actions_column">
+                <button id="btn_recover_{{ b.id }}" type="button" class="btn btn-primary btn_recover" data-dismiss="modal">Recover</button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
     </div>
   </div>
 </div>
@@ -58,8 +92,9 @@ $("#btn_backup").click(function(){
     alert(textStatus + "\n" + errorThrown);
   });
 });
-$("#btn_recover").click(function(){
-  $.post("recover/", function(data, status){
+$(".btn_recover").click(function(){
+  var backup_id = this.id.replace("btn_recover_", "")
+  $.post("recover/", { backup_id: backup_id }, function(data, status){
     alert("Data: " + data + "\nStatus: " + status);
   }).fail(function(jqXHR, textStatus, errorThrown){
     alert(textStatus + "\n" + errorThrown);

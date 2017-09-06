@@ -22,7 +22,6 @@ from nectar_dashboard.fwaas import views
 
 urlpatterns = patterns('',
     url(r'^$', views.FwaasView.as_view(), name='index'),
-    url(r'^backups/$', views.BackupsView.as_view(), name='backups'),
     url(r'^launch/$', views.launch, name='launch'),
     url(r'^backup/$', views.backup, name='backup'),
     url(r'^recover/$', views.recover, name='recover'),
