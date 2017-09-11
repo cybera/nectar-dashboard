@@ -16,31 +16,31 @@ class FwaasView(TemplateView):
     template_name = 'fwaas/index.html'
 
     def get(self, request, *args, **kwargs):
-        backups = fwaas.get_backups()
+        backups = fwaas.get_backups(request)
         return render(request, self.template_name, {"backups": backups})
 
 def launch(request):
-    if fwaas.instance_exists():
+    if fwaas.instance_exists(request):
         messages.error(request, _('Firewall instance already exists'))
     else:
-        fwaas.launch_instance()
+        fwaas.launch_instance(request)
     return JsonResponse({})
 
 def backup(request):
-    if not fwaas.instance_exists():
+    if not fwaas.instance_exists(request):
         messages.error(request, _('Firewall instance does not exist'))
     else:
-        fwaas.create_backup()
+        fwaas.create_backup(request)
     return JsonResponse({})
 
 def recover(request):
     backup_id = request.POST["backup_id"]
-    fwaas.recover_instance(backup_id)
+    fwaas.recover_instance(request, backup_id)
     return JsonResponse({})
 
 def upgrade(request):
-    if not fwaas.instance_exists():
+    if not fwaas.instance_exists(request):
         messages.error(request, _('Firewall instance does not exist'))
     else:
-        fwaas.upgrade_instance()
+        fwaas.upgrade_instance(request)
     return JsonResponse({})
