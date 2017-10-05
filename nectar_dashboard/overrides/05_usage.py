@@ -1,5 +1,6 @@
 from django.core import urlresolvers
 from django.utils.translation import ugettext_lazy as _
+from horizon import exceptions
 from horizon import tables
 from horizon.utils import filters
 from openstack_dashboard import usage
