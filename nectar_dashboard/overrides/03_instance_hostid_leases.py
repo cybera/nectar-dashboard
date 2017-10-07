@@ -108,8 +108,9 @@ class CyberaDetailView(tabs.TabView):
 
             if self.request.GET.get('lease_time', False):
                 lease_time = int(self.request.GET.get('lease_time'))
-                new_lease = datetime.datetime.now() + datetime.timedelta(days=lease_time)
-                helpers.set_instance_lease(instance.id, project_id, region, new_lease)
+                if lease_time in [1, 3]:
+                    new_lease = datetime.datetime.now() + datetime.timedelta(days=lease_time)
+                    helpers.set_instance_lease(instance.id, project_id, region, new_lease)
 
             lease_date = helpers.get_instance_lease(instance.id, project_id, region)
             if lease_date is None:
