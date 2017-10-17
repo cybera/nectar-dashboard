@@ -35,7 +35,8 @@ def backup(request):
 
 def recover(request):
     backup_id = request.POST["backup_id"]
-    fwaas.recover_instance(request, backup_id)
+    deact_key = request.POST["deact_key"]
+    fwaas.recover_instance(request, backup_id, deact_key)
     return JsonResponse({})
 
 def upgrade(request):
