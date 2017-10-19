@@ -9,6 +9,8 @@ from horizon import messages
 from horizon import forms
 from horizon import tables
 
+from swiftclient import client as swiftclient
+
 from nectar_dashboard.fwaas import fwaas
 
 
@@ -16,7 +18,11 @@ class FwaasView(TemplateView):
     template_name = 'fwaas/index.html'
 
     def get(self, request, *args, **kwargs):
-        backups = fwaas.get_backups(request)
+        try:
+            backups = fwaas.get_backups(request)
+        except swiftclient.ClientException:
+            messages.error(request, _('List of backups could not be retrieved'))
+            backups = []
         return render(request, self.template_name, {"backups": backups})
 
 def launch(request):
@@ -35,7 +41,8 @@ def backup(request):
 
 def recover(request):
     backup_id = request.POST["backup_id"]
-    deact_key = request.POST["deact_key"]
+    #deact_key = request.POST["deact_key"]
+    deact_key = "46c8754f95907bd01c75f702636f3be2f2bf70aaccc5ed619973529180c3dd09"
     fwaas.recover_instance(request, backup_id, deact_key)
     return JsonResponse({})
 
