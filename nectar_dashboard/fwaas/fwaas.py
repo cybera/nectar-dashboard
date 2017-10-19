@@ -30,7 +30,7 @@ def launch_instance(request, bootstrap=None):
     hot = swift.swift_get_object(request, "CyberaVFS", "hot.panos.yaml")
     env = swift.swift_get_object(request, "CyberaVFS", "env.panos.yaml")
     if bootstrap is None:
-       bootstrap = swift.swift_get_object(request, "CyberaVFS", bootstrap).data.read()
+       bootstrap = swift.swift_get_object(request, "CyberaVFS", "bootstrap.xml").data.read()
 
     tpl = hot.data.read()
     tpl = tpl.replace('%INITCFG%', initcfg)
@@ -113,5 +113,5 @@ def destroy_instance(request):
     stack_id = get_stack_id(request)
     heat.stack_delete(request, stack_id)
 
-def upgrade_instance():
+def upgrade_instance(request, deact_key):
     pass

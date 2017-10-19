@@ -14,7 +14,7 @@
       <button id="btn_launch" type="button" class="btn">Launch</button>
       <button id="btn_backup" type="button" class="btn">Backup</button>
       <button id="btn_recover_modal" type="button" class="btn" data-toggle="modal" data-target="#modal_recover">Recover</button>
-      <button id="btn_upgrade" type="button" class="btn">Upgrade</button>
+      <button id="btn_upgrade_modal" type="button" class="btn" data-toggle="modal" data-target="#modal_upgrade">Upgrade</button>
     </div>
   </div>
 </div>
@@ -27,6 +27,7 @@
         <h4 class="modal-title" id="recovery_modal">Recover</h4>
       </div>
       <div class="modal-body">
+        {% include "_deact_key_field.html" %}
         <table class="table table-striped">
           <thead>
             <tr class="table_column_header">
@@ -47,7 +48,25 @@
         </table>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modal_upgrade" tabindex="-1" role="dialog" aria-labelledby="upgrade_modal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="upgrade_modal">Upgrade</h4>
+      </div>
+      <div class="modal-body">
+        {% include "_deact_key_field.html" %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button id="btn_upgrade" type="button" class="btn btn-primary" data-dismiss="modal">Upgrade</button>
       </div>
     </div>
   </div>
@@ -94,14 +113,16 @@ $("#btn_backup").click(function(){
 });
 $(".btn_recover").click(function(){
   var backup_id = this.id.replace("btn_recover_", "")
-  $.post("recover/", { backup_id: backup_id }, function(data, status){
+  var deact_key = $("#modal_recover #deact_key").val()
+  $.post("recover/", { backup_id: backup_id, deact_key: deact_key }, function(data, status){
     alert("Data: " + data + "\nStatus: " + status);
   }).fail(function(jqXHR, textStatus, errorThrown){
     alert(textStatus + "\n" + errorThrown);
   });
 });
 $("#btn_upgrade").click(function(){
-  $.post("upgrade/", function(data, status){
+  var deact_key = $("#modal_upgrade #deact_key").val()
+  $.post("upgrade/", { deact_key: deact_key }, function(data, status){
     alert("Data: " + data + "\nStatus: " + status);
   }).fail(function(jqXHR, textStatus, errorThrown){
     alert(textStatus + "\n" + errorThrown);

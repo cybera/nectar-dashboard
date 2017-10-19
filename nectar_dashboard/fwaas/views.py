@@ -43,5 +43,6 @@ def upgrade(request):
     if not fwaas.instance_exists(request):
         messages.error(request, _('Firewall instance does not exist'))
     else:
-        fwaas.upgrade_instance(request)
+        deact_key = request.POST["deact_key"]
+        fwaas.upgrade_instance(request, deact_key)
     return JsonResponse({})
