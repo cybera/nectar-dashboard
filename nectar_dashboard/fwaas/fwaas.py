@@ -19,7 +19,7 @@ from oslo_serialization import jsonutils
 
 def instance_exists(request):
     """ Return true if firewall instance is running, otherwise false """
-    return get_instance() is not None
+    return get_instance(request) is not None
 
 def instance_upgradeable():
     """ Return true if new firewall image is available, otherwise false """
@@ -30,7 +30,8 @@ def launch_instance(request, bootstrap=None):
     hot = swift.swift_get_object(request, "CyberaVFS", "hot.panos.yaml")
     env = swift.swift_get_object(request, "CyberaVFS", "env.panos.yaml")
     if bootstrap is None:
-       bootstrap = swift.swift_get_object(request, "CyberaVFS", "bootstrap.xml").data.read()
+        bootstrap = swift.swift_get_object(request, "CyberaVFS", "bootstrap.xml").data.read()
+    bootstrap = bootstrap.replace('"', "'").replace('\n', '\\n').strip()
 
     tpl = hot.data.read()
     tpl = tpl.replace('%INITCFG%', initcfg)
@@ -47,7 +48,7 @@ def launch_instance(request, bootstrap=None):
 
 
 def create_backup(request):
-    addr = get_instance().addresses['mgmt'][0]['addr']
+    addr = get_instance(request).addresses['mgmt'][0]['addr']
     apikey = get_panos_api_key()
 
     r = requests.get("https://%s//api/?type=export&category=configuration&key=%s" % (addr, apikey), verify=False)
@@ -65,7 +66,7 @@ def get_backups(request):
     return backups
 
 def recover_instance(request, backup_id, deact_key):
-    bootstrap = swift.swift_get_object(request, "CyberaVFS", backup_id)
+    bootstrap = swift.swift_get_object(request, "CyberaVFS", "backups/" + backup_id)
     delicense_instance(deact_key)
     destroy_instance(request)
     launch_instance(request, bootstrap)
@@ -94,18 +95,18 @@ def get_instance(request):
 
     return None
 
-def get_panos_api_key():
+def get_panos_api_key(request):
     username = "CyberaVFS-api-account"
     password = "topic.jockey.finland.acyclic"
-    addr = get_instance().addresses['mgmt'][0]['addr']
+    addr = get_instance(request).addresses['mgmt'][0]['addr']
     r = requests.get("https://%s/api/?type=keygen&user=%s&password=%s" % (addr, username, password), verify=False)
     x = parseString(r.text)
     apikey = x.getElementsByTagName('key')[0].childNodes[0].nodeValue
     return apikey
 
-def delicense_instance(deact_key):
-    apikey = get_panos_api_key()
-    addr = get_instance().addresses['mgmt'][0]['addr']
+def delicense_instance(request, deact_key):
+    apikey = get_panos_api_key(request)
+    addr = get_instance(request).addresses['mgmt'][0]['addr']
     requests.post("https://%s/api/?type=op&cmd=<request><license><api-key><set><key>%s</key></set></api-key></license></request>&key=%s" % (addr, deact_key, apikey), verify=False)
     requests.post("https://%s/api/?type=op&cmd=<request><license><deactivate><key><mode>auto</mode></key></deactivate></license></request>&key=%s" % (addr, apikey), verify=False)
 
