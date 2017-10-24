@@ -1,18 +1,18 @@
 # See openstack_dashboard/api/{nova,glance,swift}.py
 # Also grep the main dashboard repo for 'nova.', 'glance.' and 'swift.' for usage examples
 
-import base64
-import requests
-import yaml
-import StringIO
-
 from datetime import datetime
 from xml.dom.minidom import parseString
+
+import time
+import requests
 
 from openstack_dashboard.api import heat
 from openstack_dashboard.api import nova
 from openstack_dashboard.api import swift
-from oslo_serialization import jsonutils
+
+DESTROY_CHECK_DELAY = 1
+DESTROY_CHECK_ATTEMPTS = 10
 
 
 # Functions where return values matter are noted in the comments, other ones don't matter (for now)
@@ -48,7 +48,7 @@ def launch_instance(request, bootstrap=None):
 
 
 def create_backup(request):
-    addr = get_instance(request).addresses['mgmt'][0]['addr']
+    addr = get_ipv4_address(request)
     apikey = get_panos_api_key(request)
 
     r = requests.get("https://%s//api/?type=export&category=configuration&key=%s" % (addr, apikey), verify=False)
@@ -66,14 +66,14 @@ def get_backups(request):
     return backups
 
 def recover_instance(request, backup_id, deact_key):
-    bootstrap = swift.swift_get_object(request, "CyberaVFS", "backups/" + backup_id)
-    delicense_instance(request, deact_key)
+    bootstrap = swift.swift_get_object(request, "CyberaVFS", backup_id).data.read()
+    #delicense_instance(request, deact_key)
     destroy_instance(request)
     launch_instance(request, bootstrap)
 
 def get_stack_id(request):
     filters = {
-        'name': '^cybera_virtual_firewall$',
+        'stack_name': 'cybera_virtual_firewall',
     }
 
     result = heat.stacks_list(request, filters=filters)
@@ -98,7 +98,7 @@ def get_instance(request):
 def get_panos_api_key(request):
     username = "foo"
     password = "bar"
-    addr = get_instance(request).addresses['mgmt'][0]['addr']
+    addr = get_ipv4_address(request)
     r = requests.get("https://%s/api/?type=keygen&user=%s&password=%s" % (addr, username, password), verify=False)
     x = parseString(r.text)
     apikey = x.getElementsByTagName('key')[0].childNodes[0].nodeValue
@@ -106,7 +106,7 @@ def get_panos_api_key(request):
 
 def delicense_instance(request, deact_key):
     apikey = get_panos_api_key(request)
-    addr = get_instance(request).addresses['mgmt'][0]['addr']
+    addr = get_ipv4_address(request)
     requests.post("https://%s/api/?type=op&cmd=<request><license><api-key><set><key>%s</key></set></api-key></license></request>&key=%s" % (addr, deact_key, apikey), verify=False)
     requests.post("https://%s/api/?type=op&cmd=<request><license><deactivate><key><mode>auto</mode></key></deactivate></license></request>&key=%s" % (addr, apikey), verify=False)
 
@@ -114,5 +114,16 @@ def destroy_instance(request):
     stack_id = get_stack_id(request)
     heat.stack_delete(request, stack_id)
 
+    for _ in range(DESTROY_CHECK_ATTEMPTS):
+        if get_stack_id(request) is None:
+            break
+        time.sleep(DESTROY_CHECK_DELAY)
+
 def upgrade_instance(request, deact_key):
     pass
+
+def get_ipv4_address(request):
+    instance = get_instance(request)
+    for x in instance.addresses['default']:
+        if x['version'] == 4:
+            return x['addr']
