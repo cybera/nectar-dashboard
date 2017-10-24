@@ -49,7 +49,7 @@ def launch_instance(request, bootstrap=None):
 
 def create_backup(request):
     addr = get_instance(request).addresses['mgmt'][0]['addr']
-    apikey = get_panos_api_key()
+    apikey = get_panos_api_key(request)
 
     r = requests.get("https://%s//api/?type=export&category=configuration&key=%s" % (addr, apikey), verify=False)
 
@@ -67,7 +67,7 @@ def get_backups(request):
 
 def recover_instance(request, backup_id, deact_key):
     bootstrap = swift.swift_get_object(request, "CyberaVFS", "backups/" + backup_id)
-    delicense_instance(deact_key)
+    delicense_instance(request, deact_key)
     destroy_instance(request)
     launch_instance(request, bootstrap)
 
