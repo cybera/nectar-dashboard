@@ -96,8 +96,8 @@ def get_instance(request):
     return None
 
 def get_panos_api_key(request):
-    username = "CyberaVFS-api-account"
-    password = "topic.jockey.finland.acyclic"
+    username = "foo"
+    password = "bar"
     addr = get_instance(request).addresses['mgmt'][0]['addr']
     r = requests.get("https://%s/api/?type=keygen&user=%s&password=%s" % (addr, username, password), verify=False)
     x = parseString(r.text)
