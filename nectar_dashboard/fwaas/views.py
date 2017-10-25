@@ -1,13 +1,9 @@
-from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import TemplateView
 from django.http import JsonResponse
 from django.shortcuts import render
 
 from horizon import messages
-from horizon import forms
-from horizon import tables
 
 from swiftclient import client as swiftclient
 
