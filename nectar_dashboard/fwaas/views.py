@@ -19,7 +19,8 @@ class FwaasView(TemplateView):
         except swiftclient.ClientException:
             messages.error(request, _('List of backups could not be retrieved'))
             backups = []
-        return render(request, self.template_name, {"backups": backups})
+        upgradeable = fwaas.instance_upgradeable(request)
+        return render(request, self.template_name, {"backups": backups, "upgradeable": upgradeable})
 
 def launch(request):
     if fwaas.instance_exists(request):

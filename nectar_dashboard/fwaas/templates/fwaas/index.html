@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}{% trans "FWaaS" %}{% endblock %}
+{% block title %}{% trans "CyberaVFS" %}{% endblock %}
 
 {% block page_header %}
-  {% include "horizon/common/_page_header.html" with title=_("FWaaS") %}
+  {% include "horizon/common/_page_header.html" with title=_("CyberaVFS") %}
 {% endblock page_header %}
 
 {% block main %}
@@ -14,7 +14,7 @@
       <button id="btn_launch" type="button" class="btn">Launch</button>
       <button id="btn_backup" type="button" class="btn">Backup</button>
       <button id="btn_recover_modal" type="button" class="btn" data-toggle="modal" data-target="#modal_recover">Recover</button>
-      <button id="btn_upgrade_modal" type="button" class="btn" data-toggle="modal" data-target="#modal_upgrade">Upgrade</button>
+      <button id="btn_upgrade_modal" type="button" class="btn" data-toggle="modal" data-target="#modal_upgrade" {{upgradeable | yesno:",disabled"}}>Upgrade</button>
     </div>
   </div>
 </div>
