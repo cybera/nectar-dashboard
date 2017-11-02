@@ -20,27 +20,31 @@ class FwaasView(TemplateView):
             messages.error(request, _('List of backups could not be retrieved'))
             backups = []
         upgradeable = fwaas.instance_upgradeable(request)
-        return render(request, self.template_name, {"backups": backups, "upgradeable": upgradeable})
+        running = fwaas.instance_exists()
+        return render(request, self.template_name, {"backups": backups, "upgradeable": upgradeable, "running": running})
 
 def launch(request):
     if fwaas.instance_exists(request):
         messages.error(request, _('Firewall instance already exists'))
     else:
-        fwaas.launch_instance(request)
+        password = request.POST["password"]
+        fwaas.launch_instance(request, password=password)
     return JsonResponse({})
 
 def backup(request):
     if not fwaas.instance_exists(request):
         messages.error(request, _('Firewall instance does not exist'))
     else:
-        fwaas.create_backup(request)
+        password = request.POST["password"]
+        fwaas.create_backup(request, password)
     return JsonResponse({})
 
 def recover(request):
     backup_id = request.POST["backup_id"]
     #deact_key = request.POST["deact_key"]
     deact_key = "46c8754f95907bd01c75f702636f3be2f2bf70aaccc5ed619973529180c3dd09"
-    fwaas.recover_instance(request, backup_id, deact_key)
+    password = request.POST["password"]
+    fwaas.recover_instance(request, backup_id, deact_key, password)
     return JsonResponse({})
 
 def upgrade(request):
@@ -48,5 +52,6 @@ def upgrade(request):
         messages.error(request, _('Firewall instance does not exist'))
     else:
         deact_key = request.POST["deact_key"]
-        fwaas.upgrade_instance(request, deact_key)
+        password = request.POST["password"]
+        fwaas.upgrade_instance(request, deact_key, password)
     return JsonResponse({})

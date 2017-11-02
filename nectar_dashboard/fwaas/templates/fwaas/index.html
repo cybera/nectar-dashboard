@@ -11,66 +11,18 @@
 <div class="row-fluid">
   <div class="span12">
     <div class="btn-group btn-group-lg" role="group">
-      <button id="btn_launch" type="button" class="btn">Launch</button>
-      <button id="btn_backup" type="button" class="btn">Backup</button>
-      <button id="btn_recover_modal" type="button" class="btn" data-toggle="modal" data-target="#modal_recover">Recover</button>
+      <button id="btn_launch_modal" type="button" class="btn" data-toggle="modal" data-target="#modal_launch" {{running | yesno:"disabled,"}}>Launch</button>
+      <button id="btn_backup_modal" type="button" class="btn" data-toggle="modal" data-target="#modal_backup" {{running | yesno:",disabled"}}>Backup</button>
+      <button id="btn_recover_modal" type="button" class="btn" data-toggle="modal" data-target="#modal_recover" {{running | yesno:",disabled"}}>Recover</button>
       <button id="btn_upgrade_modal" type="button" class="btn" data-toggle="modal" data-target="#modal_upgrade" {{upgradeable | yesno:",disabled"}}>Upgrade</button>
     </div>
   </div>
 </div>
 
-<div class="modal fade" id="modal_recover" tabindex="-1" role="dialog" aria-labelledby="recovery_modal">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="recovery_modal">Recover</h4>
-      </div>
-      <div class="modal-body">
-        {% include "fwaas/_deact_key_field.html" %}
-        <table class="table table-striped">
-          <thead>
-            <tr class="table_column_header">
-              <th class="normal_column">Date</th>
-              <th class="actions_column">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for b in backups %}
-            <tr>
-              <td class="normal_column">{{ b.date }}</td>
-              <td class="actions_column">
-                <button id="btn_recover_{{ b.id }}" type="button" class="btn btn-primary btn_recover" data-dismiss="modal">Recover</button>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade" id="modal_upgrade" tabindex="-1" role="dialog" aria-labelledby="upgrade_modal">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="upgrade_modal">Upgrade</h4>
-      </div>
-      <div class="modal-body">
-        {% include "fwaas/_deact_key_field.html" %}
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        <button id="btn_upgrade" type="button" class="btn btn-primary" data-dismiss="modal">Upgrade</button>
-      </div>
-    </div>
-  </div>
-</div>
+{% include "fwaas/_launch_modal.html" %}
+{% include "fwaas/_backup_modal.html" %}
+{% include "fwaas/_recover_modal.html" %}
+{% include "fwaas/_upgrade_modal.html" %}
 
 <script>
 function getCookie(name) {
@@ -98,14 +50,16 @@ $.ajaxSetup({
   }
 });
 $("#btn_launch").click(function(){
-  $.post("launch/", function(data, status){
+  var password = $("#modal_backup #password").val()
+  $.post("launch/", { password: password }, function(data, status){
     alert("Data: " + data + "\nStatus: " + status);
   }).fail(function(jqXHR, textStatus, errorThrown){
     alert(textStatus + "\n" + errorThrown);
   });
 });
 $("#btn_backup").click(function(){
-  $.post("backup/", function(data, status){
+  var password = $("#modal_backup #password").val()
+  $.post("backup/", { password: password }, function(data, status){
     alert("Data: " + data + "\nStatus: " + status);
   }).fail(function(jqXHR, textStatus, errorThrown){
     alert(textStatus + "\n" + errorThrown);
@@ -114,7 +68,8 @@ $("#btn_backup").click(function(){
 $(".btn_recover").click(function(){
   var backup_id = this.id.replace("btn_recover_", "")
   var deact_key = $("#modal_recover #deact_key").val()
-  $.post("recover/", { backup_id: backup_id, deact_key: deact_key }, function(data, status){
+  var password = $("#modal_recover #password").val()
+  $.post("recover/", { backup_id: backup_id, deact_key: deact_key, password: password }, function(data, status){
     alert("Data: " + data + "\nStatus: " + status);
   }).fail(function(jqXHR, textStatus, errorThrown){
     alert(textStatus + "\n" + errorThrown);
@@ -122,7 +77,8 @@ $(".btn_recover").click(function(){
 });
 $("#btn_upgrade").click(function(){
   var deact_key = $("#modal_upgrade #deact_key").val()
-  $.post("upgrade/", { deact_key: deact_key }, function(data, status){
+  var password = $("#modal_upgrade #password").val()
+  $.post("upgrade/", { deact_key: deact_key, password: password }, function(data, status){
     alert("Data: " + data + "\nStatus: " + status);
   }).fail(function(jqXHR, textStatus, errorThrown){
     alert(textStatus + "\n" + errorThrown);

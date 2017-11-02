@@ -1,0 +1,27 @@
+{% extends "fwaas/_modal.html" %}
+{% with action="recover" %}
+{% block modal_body %}
+{% include "fwaas/_password_field.html" %}
+{% include "fwaas/_password_field.html" %}
+<table class="table table-striped">
+  <thead>
+    <tr class="table_column_header">
+      <th class="normal_column">Date</th>
+      <th class="actions_column">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for b in backups %}
+    <tr>
+      <td class="normal_column">{{ b.date }}</td>
+      <td class="actions_column">
+        <button id="btn_recover_{{ b.id }}" type="button" class="btn btn-primary btn_recover" data-dismiss="modal">Recover</button>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+{% block modal_footer %}
+<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+{% endblock %}

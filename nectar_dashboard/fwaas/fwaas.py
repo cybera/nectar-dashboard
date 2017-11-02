@@ -32,7 +32,7 @@ def instance_upgradeable(request):
         return False
     return current_id != new_id
 
-def launch_instance(request, bootstrap=None):
+def launch_instance(request, bootstrap=None, password=None):
     hot = swift.swift_get_object(request, "CyberaVFS", "hot.panos.yaml")
     env = swift.swift_get_object(request, "CyberaVFS", "env.panos.yaml")
 
@@ -56,14 +56,14 @@ def launch_instance(request, bootstrap=None):
 
     heat.stack_create(request, **fields)
 
-def get_running_config(request):
+def get_running_config(request, password):
     addr = get_ipv4_address(request)
-    apikey = get_panos_api_key(request)
+    apikey = get_panos_api_key(request, password)
 
     return requests.get("https://%s//api/?type=export&category=configuration&key=%s" % (addr, apikey), verify=False).text
 
-def create_backup(request):
-    config = get_running_config(request)
+def create_backup(request, password):
+    config = get_running_config(request, password)
     object_name = datetime.now().strftime("backup-%Y-%m-%d-%H:%M%S.xml")
     swift.swift_api(request).put_object("CyberaVFS/backups", object_name, contents=config)
 
@@ -75,9 +75,9 @@ def get_backups(request):
         backups.append({"id": o['name'], "date":o['last_modified']})
     return reversed(backups)
 
-def recover_instance(request, backup_id, deact_key):
+def recover_instance(request, backup_id, deact_key, password):
     bootstrap = swift.swift_get_object(request, "CyberaVFS", backup_id).data.read()
-    delicense_instance(request, deact_key)
+    delicense_instance(request, deact_key, password)
     destroy_instance(request)
     launch_instance(request, bootstrap)
 
@@ -105,17 +105,16 @@ def get_instance(request):
 
     return None
 
-def get_panos_api_key(request):
+def get_panos_api_key(request, password):
     username = "foo"
-    password = "bar"
     addr = get_ipv4_address(request)
     r = requests.get("https://%s/api/?type=keygen&user=%s&password=%s" % (addr, username, password), verify=False)
     x = parseString(r.text)
     apikey = x.getElementsByTagName('key')[0].childNodes[0].nodeValue
     return apikey
 
-def delicense_instance(request, deact_key):
-    apikey = get_panos_api_key(request)
+def delicense_instance(request, deact_key, password):
+    apikey = get_panos_api_key(request, password)
     addr = get_ipv4_address(request)
     requests.post("https://%s/api/?type=op&cmd=<request><license><api-key><set><key>%s</key></set></api-key></license></request>&key=%s" % (addr, deact_key, apikey), verify=False)
     requests.post("https://%s/api/?type=op&cmd=<request><license><deactivate><key><mode>auto</mode></key></deactivate></license></request>&key=%s" % (addr, apikey), verify=False)
@@ -130,13 +129,13 @@ def destroy_instance(request):
             break
         time.sleep(DESTROY_CHECK_DELAY)
 
-def upgrade_instance(request, deact_key):
+def upgrade_instance(request, deact_key, password):
     image_id = get_recent_image(request)
     if image_id is None:
         raise NotAvailable("No panos-production image available")
     update_image_id(request, image_id)
-    config = get_running_config(request)
-    delicense_instance(request, deact_key)
+    config = get_running_config(request, password)
+    delicense_instance(request, deact_key, password)
     destroy_instance(request)
     launch_instance(request, config)
 
