@@ -19,10 +19,10 @@
   </div>
 </div>
 
-{% include "fwaas/_launch_modal.html" %}
-{% include "fwaas/_backup_modal.html" %}
-{% include "fwaas/_recover_modal.html" %}
-{% include "fwaas/_upgrade_modal.html" %}
+{% include "fwaas/_launch_modal.html" with action="launch" %}
+{% include "fwaas/_backup_modal.html" with action="backup" %}
+{% include "fwaas/_recover_modal.html" with action="recover" %}
+{% include "fwaas/_upgrade_modal.html" with action="upgrade" %}
 
 <script>
 function getCookie(name) {
