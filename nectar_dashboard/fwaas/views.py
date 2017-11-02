@@ -20,7 +20,7 @@ class FwaasView(TemplateView):
             messages.error(request, _('List of backups could not be retrieved'))
             backups = []
         upgradeable = fwaas.instance_upgradeable(request)
-        running = fwaas.instance_exists()
+        running = fwaas.instance_exists(request)
         return render(request, self.template_name, {"backups": backups, "upgradeable": upgradeable, "running": running})
 
 def launch(request):
