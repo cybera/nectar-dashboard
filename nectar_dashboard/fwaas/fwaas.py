@@ -26,7 +26,11 @@ def instance_exists(request):
 
 def instance_upgradeable(request):
     """ Return true if new firewall image is available, otherwise false """
-    current_id = get_instance(request).image["id"]
+    instance = get_instance(request)
+    if instance is None:
+        return False
+
+    current_id = instance.image["id"]
     new_id = get_recent_image(request)
     if new_id is None:
         return False
