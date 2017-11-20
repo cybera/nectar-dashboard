@@ -3,10 +3,15 @@
 
 from datetime import datetime
 from xml.dom.minidom import parseString
+from passlib.hash import md5_crypt
 
 import time
 import requests
+import requests.exceptions
 import yaml
+import hashlib
+import xml.etree.ElementTree as ET
+import StringIO
 
 from openstack_dashboard.api import heat
 from openstack_dashboard.api import nova
@@ -44,6 +49,8 @@ def launch_instance(request, bootstrap=None, password=None):
     authcodes = swift.swift_get_object(request, "CyberaVFS", "authcodes").data.read().replace('\n', '\\n').strip()
     if bootstrap is None:
         bootstrap = swift.swift_get_object(request, "CyberaVFS", "bootstrap.xml").data.read()
+    if password is not None:
+        bootstrap = inject_phash(password, bootstrap)
     bootstrap = bootstrap.replace('"', "'").replace('\n', '\\n').strip()
 
     tpl = hot.data.read()
@@ -169,3 +176,17 @@ def get_ipv4_address(request):
     for x in instance.addresses['default']:
         if x['version'] == 4:
             return x['addr']
+
+def inject_phash(password, bootstrap):
+    """
+    After the user creates a password for CyberaVFS-api-account it will need to be
+    injected into bootstrap.xml
+    """
+    tree = ET.fromstring(bootstrap)
+    root = tree.getroot()
+    root.find(
+        "./mgt-config/users/entry[@name='CyberaVFS-api-account']/phash"
+    ).text = md5_crypt.hash(password)
+    output = StringIO.StringIO()
+    tree.write(output)
+    return output.getvalue()
