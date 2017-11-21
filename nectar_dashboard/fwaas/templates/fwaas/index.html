@@ -11,12 +11,22 @@
 <div class="row-fluid">
   <div class="span12">
     <div class="btn-group btn-group-lg" role="group">
-      <button id="btn_launch_modal" type="button" class="btn" data-toggle="modal" data-target="#modal_launch" {{running | yesno:"disabled,"}}>Launch</button>
-      <button id="btn_backup_modal" type="button" class="btn" data-toggle="modal" data-target="#modal_backup" {{running | yesno:",disabled"}}>Backup</button>
-      <button id="btn_recover_modal" type="button" class="btn" data-toggle="modal" data-target="#modal_recover" {{running | yesno:",disabled"}}>Recover</button>
+      <button id="btn_launch_modal" type="button" class="btn" data-toggle="modal" data-target="#modal_launch" {{launch_enabled | yesno:",disabled"}}>Launch</button>
+      <button id="btn_backup_modal" type="button" class="btn" data-toggle="modal" data-target="#modal_backup" {{backup_enabled | yesno:",disabled"}}>Backup</button>
+      <button id="btn_recover_modal" type="button" class="btn" data-toggle="modal" data-target="#modal_recover" {{backup_enabled | yesno:",disabled"}}>Recover</button>
       <button id="btn_upgrade_modal" type="button" class="btn" data-toggle="modal" data-target="#modal_upgrade" {{upgradeable | yesno:",disabled"}}>Upgrade</button>
     </div>
   </div>
+</div>
+<div class="row-fluid">
+  <div class="span12">
+    Status: {{ status }}
+  </div>
+  {% if backup_enabled %}
+  <div class="span12">
+    <a href="https://{{ addr }}">Management interface</a> (Must be using the VPN)
+  </div>
+  {% endif %}
 </div>
 
 {% include "fwaas/_launch_modal.html" with action="launch" %}

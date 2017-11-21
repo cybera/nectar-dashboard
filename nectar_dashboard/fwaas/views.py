@@ -19,9 +19,22 @@ class FwaasView(TemplateView):
         except swiftclient.ClientException:
             messages.error(request, _('List of backups could not be retrieved'))
             backups = []
-        upgradeable = fwaas.instance_upgradeable(request)
-        running = fwaas.instance_exists(request)
-        return render(request, self.template_name, {"backups": backups, "upgradeable": upgradeable, "running": running})
+        status = fwaas.get_status(request)
+        addr = ""
+        if status == fwaas.Status.RUNNING:
+            launch_enabled = False
+            backup_enabled = True
+            upgradeable = fwaas.instance_upgradeable(request)
+            addr = fwaas.get_ipv4_address(request)
+        elif status == fwaas.Status.NOT_RUNNING:
+            launch_enabled = True
+            backup_enabled = False
+            upgradeable = False
+        else:
+            launch_enabled = False
+            backup_enabled= False
+            upgradeable = False
+        return render(request, self.template_name, {"backups": backups, "upgradeable": upgradeable, "launch_enabled": launch_enabled, "backup_enabled": backup_enabled, "status": status, "addr": addr})
 
 def launch(request):
     if fwaas.instance_exists(request):
@@ -55,3 +68,7 @@ def upgrade(request):
         password = request.POST["password"]
         fwaas.upgrade_instance(request, deact_key, password)
     return JsonResponse({})
+
+def status(request):
+    check = fwaas.get_status(request)
+    return JsonResponse({"status": check})

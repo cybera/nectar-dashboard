@@ -22,6 +22,12 @@ from horizon.exceptions import NotAvailable
 DESTROY_CHECK_DELAY = 1
 DESTROY_CHECK_ATTEMPTS = 10
 
+class Status:
+    NOT_RUNNING = "Not running"
+    CREATE_IN_PROGRESS = "Creating"
+    RUNNING = "Running"
+    DELETE_IN_PROGRESS = "Deleting"
+    UNKNOWN = "Unknown"
 
 # Functions where return values matter are noted in the comments, other ones don't matter (for now)
 
@@ -71,7 +77,16 @@ def get_running_config(request, password):
     addr = get_ipv4_address(request)
     apikey = get_panos_api_key(request, password)
 
-    return requests.get("https://%s//api/?type=export&category=configuration&key=%s" % (addr, apikey), verify=False).text
+    return requests.get("https://%s//api/?type=export&category=configuration&key=%s" % (addr, apikey),
+                        verify=False).text
+    """
+    Below is a possible alternative to the get_api_key function.
+    It may be that we do not want to store the key, and if we can just
+    use the basic auth, that would be better?
+    return requests.get("https://%s//api/?type=export&category=configuration" % (addr),
+                        auth=('CyberaVFS-api-account', password),
+                        verify=False).text
+    """
 
 def create_backup(request, password):
     config = get_running_config(request, password)
@@ -92,7 +107,7 @@ def recover_instance(request, backup_id, deact_key, password):
     destroy_instance(request)
     launch_instance(request, bootstrap)
 
-def get_stack_id(request):
+def get_stack(request):
     filters = {
         'stack_name': 'cybera_virtual_firewall',
     }
@@ -100,7 +115,7 @@ def get_stack_id(request):
     result = heat.stacks_list(request, filters=filters)
     stacks = result[0]
     if len(stacks) > 0:
-        return stacks[0].id
+        return stacks[0]
 
     return None
 
@@ -117,7 +132,7 @@ def get_instance(request):
     return None
 
 def get_panos_api_key(request, password):
-    username = "foo"
+    username = "CyberaVFS-api-account"
     addr = get_ipv4_address(request)
     r = requests.get("https://%s/api/?type=keygen&user=%s&password=%s" % (addr, username, password), verify=False)
     x = parseString(r.text)
@@ -132,11 +147,11 @@ def delicense_instance(request, deact_key, password):
     time.sleep(10)
 
 def destroy_instance(request):
-    stack_id = get_stack_id(request)
+    stack_id = get_stack(request).id
     heat.stack_delete(request, stack_id)
 
     for _ in range(DESTROY_CHECK_ATTEMPTS):
-        if get_stack_id(request) is None:
+        if get_stack(request) is None:
             break
         time.sleep(DESTROY_CHECK_DELAY)
 
@@ -177,16 +192,46 @@ def get_ipv4_address(request):
         if x['version'] == 4:
             return x['addr']
 
+def get_status(request):
+    """
+    Return current status of the stack
+    """
+    stack = get_stack(request)
+    if stack is None:
+        return Status.NOT_RUNNING
+
+    check = stack.stack_status
+
+    if check == 'CREATE_IN_PROGRESS':
+        return Status.CREATE_IN_PROGRESS
+    elif check == 'DELETE_IN_PROGRESS':
+        return Status.DELETE_IN_PROGRESS
+    elif check != 'CREATE_COMPLETE':
+        return Status.UNKNOWN
+
+    addr = get_ipv4_address(request)
+
+    resp = None
+    try:
+        resp = requests.get(
+            "https://%s/api/?type=op&cmd=<show><system><info></info></system></show>" % (addr),
+            verify=False
+        )
+    except requests.exceptions.RequestException:
+        return Status.CREATE_IN_PROGRESS
+
+    if resp.status_code != 403:
+        return Status.UNKNOWN
+
+    return Status.RUNNING
+
 def inject_phash(password, bootstrap):
     """
     After the user creates a password for CyberaVFS-api-account it will need to be
     injected into bootstrap.xml
     """
-    tree = ET.fromstring(bootstrap)
-    root = tree.getroot()
+    root = ET.fromstring(bootstrap)
     root.find(
         "./mgt-config/users/entry[@name='CyberaVFS-api-account']/phash"
     ).text = md5_crypt.hash(password)
-    output = StringIO.StringIO()
-    tree.write(output)
-    return output.getvalue()
+    return ET.tostring(root)
