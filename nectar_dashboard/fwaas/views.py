@@ -72,3 +72,10 @@ def upgrade(request):
 def status(request):
     check = fwaas.get_status(request)
     return JsonResponse({"status": check})
+
+def destroy(request):
+    deact_key = request.POST["deact_key"]
+    password = request.POST["password"]
+    fwaas.delicense_instance(request, deact_key, password)
+    fwaas.destroy_instance(request)
+    return JsonResponse({})
