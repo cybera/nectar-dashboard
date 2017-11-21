@@ -60,9 +60,9 @@ $.ajaxSetup({
   }
 });
 $("#btn_launch").click(function(){
-  var password = $("#modal_backup #password").val()
+  var password = $("#modal_launch #password").val()
   $.post("launch/", { password: password }, function(data, status){
-    alert("Data: " + data + "\nStatus: " + status);
+    alert("Data: " + JSON.stringify(data) + "\nStatus: " + status);
   }).fail(function(jqXHR, textStatus, errorThrown){
     alert(textStatus + "\n" + errorThrown);
   });
@@ -70,7 +70,7 @@ $("#btn_launch").click(function(){
 $("#btn_backup").click(function(){
   var password = $("#modal_backup #password").val()
   $.post("backup/", { password: password }, function(data, status){
-    alert("Data: " + data + "\nStatus: " + status);
+    alert("Data: " + JSON.stringify(data) + "\nStatus: " + status);
   }).fail(function(jqXHR, textStatus, errorThrown){
     alert(textStatus + "\n" + errorThrown);
   });

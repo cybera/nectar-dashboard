@@ -54,8 +54,7 @@ def backup(request):
 
 def recover(request):
     backup_id = request.POST["backup_id"]
-    #deact_key = request.POST["deact_key"]
-    deact_key = "46c8754f95907bd01c75f702636f3be2f2bf70aaccc5ed619973529180c3dd09"
+    deact_key = request.POST["deact_key"]
     password = request.POST["password"]
     fwaas.recover_instance(request, backup_id, deact_key, password)
     return JsonResponse({})
