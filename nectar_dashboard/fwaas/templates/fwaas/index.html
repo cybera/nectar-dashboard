@@ -114,7 +114,7 @@ function updateStatus() {
         $("#btn_launch_modal").prop('disabled', true);
         $("#btn_backup_modal").prop('disabled', false);
         $("#btn_recover_modal").prop('disabled', false);
-        $("#btn_upgrade_modal").prop('disabled', upgradeable);
+        $("#btn_upgrade_modal").prop('disabled', !upgradeable);
         $("#firewall_url").prop('hidden', false);
         $("#firewall_url").innerHTML = "<a href='https://" + addr + ">Management interface</a> (Must be using the VPN)";
       }
