@@ -69,8 +69,13 @@ def upgrade(request):
     return JsonResponse({})
 
 def status(request):
-    check = fwaas.get_status(request)
-    return JsonResponse({"status": check})
+    status = fwaas.get_status(request)
+    upgradeable = False
+    addr = ""
+    if status == fwaas.Status.RUNNING:
+        upgradeable = fwaas.instance_upgradeable(request)
+        addr = fwaas.get_ipv4_address(request)
+    return JsonResponse({"status": status, "upgradeable": upgradeable, "address": addr})
 
 def destroy(request):
     deact_key = request.POST["deact_key"]

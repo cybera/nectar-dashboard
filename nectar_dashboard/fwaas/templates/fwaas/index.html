@@ -17,16 +17,12 @@
       <button id="btn_upgrade_modal" type="button" class="btn" data-toggle="modal" data-target="#modal_upgrade" {{upgradeable | yesno:",disabled"}}>Upgrade</button>
     </div>
   </div>
-</div>
-<div class="row-fluid">
-  <div class="span12">
+  <div id="firewall_status" class="span12">
     Status: {{ status }}
   </div>
-  {% if backup_enabled %}
-  <div class="span12">
+  <div id="firewall_url" class="span12" {{backup_enabled | yesno:",hidden"}}>
     <a href="https://{{ addr }}">Management interface</a> (Must be using the VPN)
   </div>
-  {% endif %}
 </div>
 
 {% include "fwaas/_launch_modal.html" with action="launch" %}
@@ -94,5 +90,40 @@ $("#btn_upgrade").click(function(){
     alert(textStatus + "\n" + errorThrown);
   });
 });
+function updateStatus() {
+  $.ajax({
+    url: "status/",
+    success: function(data) {
+      var status = data["status"];
+      var upgradeable = data["upgradeable"];
+      var addr = data["address"];
+      $("#firewall_status").text("Status: " + data["status"]);
+      if (status == "Not runnning") {
+        $("#btn_launch_modal").prop('disabled', false);
+        $("#btn_backup_modal").prop('disabled', true);
+        $("#btn_recover_modal").prop('disabled', true);
+        $("#btn_upgrade_modal").prop('disabled', true);
+        $("#firewall_url").prop('hidden', true);
+      } else if (status == "Creating" || status == "Deleting" || status == "Unknown") {
+        $("#btn_launch_modal").prop('disabled', true);
+        $("#btn_backup_modal").prop('disabled', true);
+        $("#btn_recover_modal").prop('disabled', true);
+        $("#btn_upgrade_modal").prop('disabled', true);
+        $("#firewall_url").prop('hidden', true);
+      } else {
+        $("#btn_launch_modal").prop('disabled', true);
+        $("#btn_backup_modal").prop('disabled', false);
+        $("#btn_recover_modal").prop('disabled', false);
+        $("#btn_upgrade_modal").prop('disabled', upgradeable);
+        $("#firewall_url").prop('hidden', false);
+        $("#firewall_url").innerHTML = "<a href='https://" + addr + ">Management interface</a> (Must be using the VPN)";
+      }
+    },
+    complete: function() {
+      setTimeout(updateStatus, 5000);
+    }
+  });
+}
+setTimeout(updateStatus, 5000);
 </script>
 {% endblock %}
