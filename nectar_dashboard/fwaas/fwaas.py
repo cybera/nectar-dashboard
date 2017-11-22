@@ -142,8 +142,15 @@ def get_panos_api_key(request, password):
 def delicense_instance(request, deact_key, password):
     apikey = get_panos_api_key(request, password)
     addr = get_ipv4_address(request)
-    requests.post("https://%s/api/?type=op&cmd=<request><license><api-key><set><key>%s</key></set></api-key></license></request>&key=%s" % (addr, deact_key, apikey), verify=False)
-    requests.post("https://%s/api/?type=op&cmd=<request><license><deactivate><key><mode>auto</mode></key></deactivate></license></request>&key=%s" % (addr, apikey), verify=False)
+
+    resp = requests.post("https://%s/api/?type=op&cmd=<request><license><api-key><set><key>%s</key></set></api-key></license></request>&key=%s" % (addr, deact_key, apikey), verify=False)
+    if resp.status_code != 200:
+        raise NotAvailable("Firewall could not be delicensed ({})".format(resp.status_code))
+
+    resp = requests.post("https://%s/api/?type=op&cmd=<request><license><deactivate><key><mode>auto</mode></key></deactivate></license></request>&key=%s" % (addr, apikey), verify=False)
+    if resp.status_code != 200:
+        raise NotAvailable("Firewall could not be delicensed ({})".format(resp.status_code))
+
     time.sleep(10)
 
 def destroy_instance(request):
