@@ -78,8 +78,8 @@ def status(request):
     return JsonResponse({"status": status, "upgradeable": upgradeable, "address": addr})
 
 def destroy(request):
-    deact_key = request.POST["deact_key"]
-    password = request.POST["password"]
+    deact_key = request.GET["deact_key"]
+    password = request.GET["password"]
     fwaas.delicense_instance(request, deact_key, password)
     fwaas.destroy_instance(request)
     return JsonResponse({})

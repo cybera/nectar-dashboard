@@ -165,7 +165,6 @@ def upgrade_instance(request, deact_key, password):
     destroy_instance(request)
     launch_instance(request, config)
 
-
 def update_image_id(request, image_id):
     env = swift.swift_get_object(request, "CyberaVFS", "env.panos.yaml").data.read()
     env = yaml.load(env)
