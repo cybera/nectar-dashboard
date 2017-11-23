@@ -77,8 +77,11 @@ def get_running_config(request, password):
     addr = get_ipv4_address(request)
     apikey = get_panos_api_key(request, password)
 
-    return requests.get("https://%s//api/?type=export&category=configuration&key=%s" % (addr, apikey),
-                        verify=False).text
+    resp = requests.get("https://%s//api/?type=export&category=configuration&key=%s" % (addr, apikey),
+                        verify=False)
+    resp.raise_for_status()
+
+    return resp.text
     """
     Below is a possible alternative to the get_api_key function.
     It may be that we do not want to store the key, and if we can just
@@ -135,6 +138,7 @@ def get_panos_api_key(request, password):
     username = "CyberaVFS-api-account"
     addr = get_ipv4_address(request)
     r = requests.get("https://%s/api/?type=keygen&user=%s&password=%s" % (addr, username, password), verify=False)
+    r.raise_for_status()
     x = parseString(r.text)
     apikey = x.getElementsByTagName('key')[0].childNodes[0].nodeValue
     return apikey
@@ -144,12 +148,10 @@ def delicense_instance(request, deact_key, password):
     addr = get_ipv4_address(request)
 
     resp = requests.post("https://%s/api/?type=op&cmd=<request><license><api-key><set><key>%s</key></set></api-key></license></request>&key=%s" % (addr, deact_key, apikey), verify=False)
-    if resp.status_code != 200:
-        raise NotAvailable("Firewall could not be delicensed ({})".format(resp.status_code))
+    resp.raise_for_status()
 
     resp = requests.post("https://%s/api/?type=op&cmd=<request><license><deactivate><key><mode>auto</mode></key></deactivate></license></request>&key=%s" % (addr, apikey), verify=False)
-    if resp.status_code != 200:
-        raise NotAvailable("Firewall could not be delicensed ({})".format(resp.status_code))
+    resp.raise_for_status()
 
     time.sleep(10)
 

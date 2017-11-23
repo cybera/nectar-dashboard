@@ -9,6 +9,24 @@ from swiftclient import client as swiftclient
 
 from nectar_dashboard.fwaas import fwaas
 
+import requests
+
+
+def handle_panos_errors(func):
+    def _wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except requests.exceptions.HTTPError as e:
+            status = e.response.status_code
+            if status >= 400 and status < 500:
+                messages.error(args[0], _('Invalid password or deactivation key'))
+            else:
+                messages.error(args[0], _('Unknown error with PAN-OS API'))
+        except requests.exceptions.RequestException:
+            messages.error(args[0], _('Unknown error with PAN-OS API'))
+        return JsonResponse({})
+
+    return _wrapper
 
 class FwaasView(TemplateView):
     template_name = 'fwaas/index.html'
@@ -44,6 +62,7 @@ def launch(request):
         fwaas.launch_instance(request, password=password)
     return JsonResponse({})
 
+@handle_panos_errors
 def backup(request):
     if not fwaas.instance_exists(request):
         messages.error(request, _('Firewall instance does not exist'))
@@ -52,6 +71,7 @@ def backup(request):
         fwaas.create_backup(request, password)
     return JsonResponse({})
 
+@handle_panos_errors
 def recover(request):
     backup_id = request.POST["backup_id"]
     deact_key = request.POST["deact_key"]
@@ -59,6 +79,7 @@ def recover(request):
     fwaas.recover_instance(request, backup_id, deact_key, password)
     return JsonResponse({})
 
+@handle_panos_errors
 def upgrade(request):
     if not fwaas.instance_exists(request):
         messages.error(request, _('Firewall instance does not exist'))
