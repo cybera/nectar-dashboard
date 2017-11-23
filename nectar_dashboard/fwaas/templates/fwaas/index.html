@@ -98,7 +98,7 @@ function updateStatus() {
       var upgradeable = data["upgradeable"];
       var addr = data["address"];
       $("#firewall_status").text("Status: " + data["status"]);
-      if (status == "Not runnning") {
+      if (status == "Not running") {
         $("#btn_launch_modal").prop('disabled', false);
         $("#btn_backup_modal").prop('disabled', true);
         $("#btn_recover_modal").prop('disabled', true);
