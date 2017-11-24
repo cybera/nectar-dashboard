@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 
 from horizon import messages
+from horizon.exceptions import NotAuthorized
 
 from swiftclient import client as swiftclient
 
@@ -17,13 +18,14 @@ def handle_panos_errors(func):
         try:
             return func(*args, **kwargs)
         except requests.exceptions.HTTPError as e:
-            status = e.response.status_code
-            if status >= 400 and status < 500:
-                messages.error(args[0], _('Invalid password or deactivation key'))
+            if e.response.status_code == 403:
+                messages.error(args[0], _('Invalid password'))
             else:
                 messages.error(args[0], _('Unknown error with PAN-OS API'))
         except requests.exceptions.RequestException:
-            messages.error(args[0], _('Unknown error with PAN-OS API'))
+            messages.error(args[0], _('PAN-OS API is unavailable'))
+        except NotAuthorized:
+            messages.error(args[0], _('Invalid deactivation key'))
         return JsonResponse({})
 
     return _wrapper

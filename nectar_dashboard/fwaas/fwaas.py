@@ -1,23 +1,22 @@
 # See openstack_dashboard/api/{nova,glance,swift}.py
 # Also grep the main dashboard repo for 'nova.', 'glance.' and 'swift.' for usage examples
 
+import xml.etree.ElementTree as ET
+import time
+
 from datetime import datetime
 from xml.dom.minidom import parseString
 from passlib.hash import md5_crypt
 
-import time
 import requests
 import requests.exceptions
 import yaml
-import hashlib
-import xml.etree.ElementTree as ET
-import StringIO
 
 from openstack_dashboard.api import heat
 from openstack_dashboard.api import nova
 from openstack_dashboard.api import swift
 from openstack_dashboard.api import glance
-from horizon.exceptions import NotAvailable
+from horizon.exceptions import NotAvailable, NotAuthorized
 
 DESTROY_CHECK_DELAY = 1
 DESTROY_CHECK_ATTEMPTS = 10
@@ -153,7 +152,19 @@ def delicense_instance(request, deact_key, password):
     resp = requests.post("https://%s/api/?type=op&cmd=<request><license><deactivate><key><mode>auto</mode></key></deactivate></license></request>&key=%s" % (addr, apikey), verify=False)
     resp.raise_for_status()
 
-    time.sleep(10)
+    for _ in range(10):
+        resp = requests.get(
+            "https://%s/api/?type=op&cmd=<show><system><info></info></system></show>&key=%s" % (addr, apikey),
+            verify=False
+        )
+        if resp.status_code == 200:
+            root = ET.fromstring(resp.text)
+            license = root.find("./result/system/vm-license").text
+            if not license.startswith("VM-"):
+                return
+        time.sleep(1)
+
+    raise NotAuthorized("Invalid deactivation key")
 
 def destroy_instance(request):
     stack_id = get_stack(request).id
