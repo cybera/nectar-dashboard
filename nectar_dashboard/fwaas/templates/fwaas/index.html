@@ -57,7 +57,8 @@ $.ajaxSetup({
 });
 $("#btn_launch").click(function(){
   var password = $("#modal_launch #password").val()
-  $.post("launch/", { password: password }, function(data, status){
+  var confirm_password = $("#modal_launch #confirm_password").val()
+  $.post("launch/", { password: password, confirm_password: confirm_password }, function(data, status){
     alert("Data: " + JSON.stringify(data) + "\nStatus: " + status);
   }).fail(function(jqXHR, textStatus, errorThrown){
     alert(textStatus + "\n" + errorThrown);

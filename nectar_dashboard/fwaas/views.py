@@ -9,6 +9,7 @@ from horizon.exceptions import NotAuthorized
 from swiftclient import client as swiftclient
 
 from nectar_dashboard.fwaas import fwaas
+from nectar_dashboard.fwaas import forms
 
 import requests
 
@@ -60,8 +61,12 @@ def launch(request):
     if fwaas.instance_exists(request):
         messages.error(request, _('Firewall instance already exists'))
     else:
-        password = request.POST["password"]
-        fwaas.launch_instance(request, password=password)
+        form = forms.LaunchForm(request.POST)
+        if form.is_valid():
+            password = form.cleaned_data["password"]
+            fwaas.launch_instance(request, password=password)
+        else:
+            messages.error(request, _('Passwords do not match'))
     return JsonResponse({})
 
 @handle_panos_errors
@@ -69,16 +74,20 @@ def backup(request):
     if not fwaas.instance_exists(request):
         messages.error(request, _('Firewall instance does not exist'))
     else:
-        password = request.POST["password"]
-        fwaas.create_backup(request, password)
+        form = forms.RecoverForm(request.POST)
+        if form.is_valid():
+            password = form.cleaned_data["password"]
+            fwaas.create_backup(request, password)
     return JsonResponse({})
 
 @handle_panos_errors
 def recover(request):
-    backup_id = request.POST["backup_id"]
-    deact_key = request.POST["deact_key"]
-    password = request.POST["password"]
-    fwaas.recover_instance(request, backup_id, deact_key, password)
+    form = forms.RecoverForm(request.POST)
+    if form.is_valid():
+        backup_id = form.cleaned_data["backup_id"]
+        deact_key = form.cleaned_data["deact_key"]
+        password = form.cleaned_data["password"]
+        fwaas.recover_instance(request, backup_id, deact_key, password)
     return JsonResponse({})
 
 @handle_panos_errors
@@ -86,9 +95,11 @@ def upgrade(request):
     if not fwaas.instance_exists(request):
         messages.error(request, _('Firewall instance does not exist'))
     else:
-        deact_key = request.POST["deact_key"]
-        password = request.POST["password"]
-        fwaas.upgrade_instance(request, deact_key, password)
+        form = forms.UpgradeForm(request.POST)
+        if form.is_valid():
+            deact_key = form.cleaned_data["deact_key"]
+            password = form.cleaned_data["password"]
+            fwaas.upgrade_instance(request, deact_key, password)
     return JsonResponse({})
 
 def status(request):
