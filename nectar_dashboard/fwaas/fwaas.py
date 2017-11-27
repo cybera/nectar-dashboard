@@ -101,7 +101,7 @@ def get_backups(request):
     objects = swift.swift_get_objects(request, "CyberaVFS", "backups/")
     for o in objects[0]:
         backups.append({"id": o['name'], "date":o['last_modified']})
-    return reversed(backups)
+    return sorted(backups, key=lambda backup: backup["date"], reverse=True)
 
 def recover_instance(request, backup_id, deact_key, password):
     bootstrap = swift.swift_get_object(request, "CyberaVFS", backup_id).data.read()
