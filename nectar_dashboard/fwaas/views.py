@@ -66,7 +66,7 @@ def launch(request):
             password = form.cleaned_data["password"]
             fwaas.launch_instance(request, password=password)
         else:
-            messages.error(request, _('Passwords do not match'))
+            show_form_errors(request, form)
     return JsonResponse({})
 
 @handle_panos_errors
@@ -74,10 +74,12 @@ def backup(request):
     if not fwaas.instance_exists(request):
         messages.error(request, _('Firewall instance does not exist'))
     else:
-        form = forms.RecoverForm(request.POST)
+        form = forms.BackupForm(request.POST)
         if form.is_valid():
             password = form.cleaned_data["password"]
             fwaas.create_backup(request, password)
+        else:
+            show_form_errors(request, form)
     return JsonResponse({})
 
 @handle_panos_errors
@@ -88,6 +90,8 @@ def recover(request):
         deact_key = form.cleaned_data["deact_key"]
         password = form.cleaned_data["password"]
         fwaas.recover_instance(request, backup_id, deact_key, password)
+    else:
+        show_form_errors(request, form)
     return JsonResponse({})
 
 @handle_panos_errors
@@ -100,6 +104,8 @@ def upgrade(request):
             deact_key = form.cleaned_data["deact_key"]
             password = form.cleaned_data["password"]
             fwaas.upgrade_instance(request, deact_key, password)
+        else:
+            show_form_errors(request, form)
     return JsonResponse({})
 
 def status(request):
@@ -117,3 +123,7 @@ def destroy(request):
     fwaas.delicense_instance(request, deact_key, password)
     fwaas.destroy_instance(request)
     return JsonResponse({})
+
+def show_form_errors(request, form):
+    for k, v in form.errors.iteritems():
+        messages.error(request, "{}: {}".format(k, v))
