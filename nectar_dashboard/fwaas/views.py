@@ -57,6 +57,17 @@ class FwaasView(TemplateView):
             upgradeable = False
         return render(request, self.template_name, {"backups": backups, "upgradeable": upgradeable, "launch_enabled": launch_enabled, "backup_enabled": backup_enabled, "status": status, "addr": addr})
 
+class RecoverView(TemplateView):
+    template_name = 'fwaas/_recover_modal.html'
+
+    def get(self, request, *args, **kwargs):
+        try:
+            backups = fwaas.get_backups(request)
+        except swiftclient.ClientException:
+            messages.error(request, _('List of backups could not be retrieved'))
+            backups = []
+        return render(request, self.template_name, {"backups": backups, "action": "recover"})
+
 def launch(request):
     if fwaas.instance_exists(request):
         messages.error(request, _('Firewall instance already exists'))

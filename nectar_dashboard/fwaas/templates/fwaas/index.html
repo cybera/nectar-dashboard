@@ -13,7 +13,7 @@
     <div class="btn-group btn-group-lg" role="group">
       <button id="btn_launch_modal" type="button" class="btn" data-toggle="modal" data-target="#modal_launch" {{launch_enabled | yesno:",disabled"}}>Launch</button>
       <button id="btn_backup_modal" type="button" class="btn" data-toggle="modal" data-target="#modal_backup" {{backup_enabled | yesno:",disabled"}}>Backup</button>
-      <button id="btn_recover_modal" type="button" class="btn" data-toggle="modal" data-target="#modal_recover" {{backup_enabled | yesno:",disabled"}}>Recover</button>
+      <button id="btn_recover_modal" type="button" class="btn" {{backup_enabled | yesno:",disabled"}}>Recover</button>
       <button id="btn_upgrade_modal" type="button" class="btn" data-toggle="modal" data-target="#modal_upgrade" {{upgradeable | yesno:",disabled"}}>Upgrade</button>
     </div>
   </div>
@@ -89,6 +89,13 @@ $("#btn_upgrade").click(function(){
     alert("Data: " + data + "\nStatus: " + status);
   }).fail(function(jqXHR, textStatus, errorThrown){
     alert(textStatus + "\n" + errorThrown);
+  });
+});
+$("#btn_recover_modal").click(function(){
+  $.get("backups/", function(data, status){
+    $("#modal_recover").remove();
+    $("body div.col-xs-12").append(data);
+    $("#modal_recover").modal("show");
   });
 });
 function updateStatus() {

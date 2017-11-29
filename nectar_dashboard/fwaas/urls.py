@@ -27,5 +27,6 @@ urlpatterns = patterns('',
     url(r'^recover/$', views.recover, name='recover'),
     url(r'^upgrade/$', views.upgrade, name='upgrade'),
     url(r'^status/$', views.status, name='status'),
+    url(r'^backups/$', views.RecoverView.as_view(), name='backups'),
     url(r'^destroy/$', views.destroy, name='destroy'),
 )
