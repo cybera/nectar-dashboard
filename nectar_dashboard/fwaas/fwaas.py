@@ -250,7 +250,13 @@ def inject_phash(password, bootstrap):
     injected into bootstrap.xml
     """
     root = ET.fromstring(bootstrap)
-    root.find(
-        "./mgt-config/users/entry[@name='CyberaVFS-api-account']/phash"
-    ).text = md5_crypt.hash(password)
+    phash = root.find("./mgt-config/users/entry[@name='CyberaVFS-api-account']/phash")
+
+    if phash is None:
+        user = ET.fromstring('<entry name="CyberaVFS-api-account"><permissions><role-based><superuser>yes</superuser></role-based></permissions><phash></phash></entry>')
+        users = root.find("./mgt-config/users")
+        users.append(user)
+        phash = root.find("./mgt-config/users/entry[@name='CyberaVFS-api-account']/phash")
+
+    phash.text = md5_crypt.hash(password)
     return ET.tostring(root)
