@@ -59,42 +59,54 @@ $("#btn_launch").click(function(){
   var password = $("#modal_launch #password").val()
   var confirm_password = $("#modal_launch #confirm_password").val()
   $.post("launch/", { password: password, confirm_password: confirm_password }, function(data, status){
-    alert("Data: " + JSON.stringify(data) + "\nStatus: " + status);
+    $("#btn_launch_modal").prop('disabled', true);
+    $("#btn_backup_modal").prop('disabled', true);
+    $("#btn_recover_modal").prop('disabled', true);
+    $("#btn_upgrade_modal").prop('disabled', true);
+    $("#firewall_url").prop('hidden', true);
   }).fail(function(jqXHR, textStatus, errorThrown){
-    alert(textStatus + "\n" + errorThrown);
+    alert("Launch failed");
   });
 });
 $("#btn_backup").click(function(){
   var password = $("#modal_backup #password").val()
   $.post("backup/", { password: password }, function(data, status){
-    alert("Data: " + JSON.stringify(data) + "\nStatus: " + status);
+    alert("Backup created");
   }).fail(function(jqXHR, textStatus, errorThrown){
-    alert(textStatus + "\n" + errorThrown);
-  });
-});
-$(".btn_recover").click(function(){
-  var backup_id = this.id.replace("btn_recover_", "")
-  var deact_key = $("#modal_recover #deact_key").val()
-  var password = $("#modal_recover #password").val()
-  $.post("recover/", { backup_id: backup_id, deact_key: deact_key, password: password }, function(data, status){
-    alert("Data: " + data + "\nStatus: " + status);
-  }).fail(function(jqXHR, textStatus, errorThrown){
-    alert(textStatus + "\n" + errorThrown);
+    alert("Backup failed");
   });
 });
 $("#btn_upgrade").click(function(){
   var deact_key = $("#modal_upgrade #deact_key").val()
   var password = $("#modal_upgrade #password").val()
   $.post("upgrade/", { deact_key: deact_key, password: password }, function(data, status){
-    alert("Data: " + data + "\nStatus: " + status);
+    $("#btn_launch_modal").prop('disabled', true);
+    $("#btn_backup_modal").prop('disabled', true);
+    $("#btn_recover_modal").prop('disabled', true);
+    $("#btn_upgrade_modal").prop('disabled', true);
+    $("#firewall_url").prop('hidden', true);
   }).fail(function(jqXHR, textStatus, errorThrown){
-    alert(textStatus + "\n" + errorThrown);
+    alert("Upgrade failed");
   });
 });
 $("#btn_recover_modal").click(function(){
   $.get("backups/", function(data, status){
     $("#modal_recover").remove();
     $("body div.col-xs-12").append(data);
+    $(".btn_recover").click(function(){
+      var backup_id = this.id.replace("btn_recover_", "")
+      var deact_key = $("#modal_recover #deact_key").val()
+      var password = $("#modal_recover #password").val()
+      $.post("recover/", { backup_id: backup_id, deact_key: deact_key, password: password }, function(data, status){
+        $("#btn_launch_modal").prop('disabled', true);
+        $("#btn_backup_modal").prop('disabled', true);
+        $("#btn_recover_modal").prop('disabled', true);
+        $("#btn_upgrade_modal").prop('disabled', true);
+        $("#firewall_url").prop('hidden', true);
+      }).fail(function(jqXHR, textStatus, errorThrown){
+        alert("Recovery failed");
+      });
+    });
     $("#modal_recover").modal("show");
   });
 });
