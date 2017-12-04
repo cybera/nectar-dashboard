@@ -7,7 +7,6 @@ class Fwaas(horizon.Panel):
     slug = 'fwaas'
 
     def allowed(self, context):
-        return True
         request = context['request']
         for role in request.user.roles:
             if role['name'] == 'CyberaVFS':
