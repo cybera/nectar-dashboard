@@ -18,7 +18,7 @@
     </div>
   </div>
   <div id="firewall_status" class="span12">
-    Status: {{ status }}
+    <strong>Status:</strong> {{ status }}
   </div>
   <div id="firewall_url" class="span12" {{backup_enabled | yesno:",hidden"}}>
     <a href="https://{{ addr }}">Management interface</a> (Must be using the VPN)
@@ -117,7 +117,7 @@ function updateStatus() {
       var status = data["status"];
       var upgradeable = data["upgradeable"];
       var addr = data["address"];
-      $("#firewall_status").text("Status: " + data["status"]);
+      $("#firewall_status").html("<strong>Status:</strong> " + data["status"]);
       if (status == "Not running") {
         $("#btn_launch_modal").prop('disabled', false);
         $("#btn_backup_modal").prop('disabled', true);
