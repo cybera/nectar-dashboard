@@ -1,0 +1,12 @@
+{% extends "fwaas/_modal.html" %}
+{% block modal_title %}
+Launch
+{% endblock %}
+{% block modal_body %}
+{% include "fwaas/_password_field.html" %}
+{% include "fwaas/_confirm_password_field.html" %}
+{% endblock %}
+{% block modal_footer %}
+<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+<button id="btn_launch" type="button" class="btn btn-primary" data-dismiss="modal">Launch</button>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "fwaas/_modal.html" %}
+{% block modal_title %}
+Backup
+{% endblock %}
+{% block modal_body %}
+{% include "fwaas/_password_field.html" %}
+{% endblock %}
+{% block modal_footer %}
+<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+<button id="btn_backup" type="button" class="btn btn-primary" data-dismiss="modal">Backup</button>
+{% endblock %}
