@@ -15,6 +15,7 @@ class LaunchForm(forms.Form):
 
 class BackupForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput())
+    description = forms.CharField(required=False)
 
 class RecoverForm(forms.Form):
     deact_key = forms.CharField()
