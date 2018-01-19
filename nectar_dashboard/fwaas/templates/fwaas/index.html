@@ -69,8 +69,9 @@ $("#btn_launch").click(function(){
   });
 });
 $("#btn_backup").click(function(){
+  var description = $("#modal_backup #description").val()
   var password = $("#modal_backup #password").val()
-  $.post("backup/", { password: password }, function(data, status){
+  $.post("backup/", { password: password, description: description }, function(data, status){
     alert("Backup created");
   }).fail(function(jqXHR, textStatus, errorThrown){
     alert("Backup failed");

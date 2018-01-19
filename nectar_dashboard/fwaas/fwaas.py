@@ -90,17 +90,20 @@ def get_running_config(request, password):
                         verify=False).text
     """
 
-def create_backup(request, password):
+def create_backup(request, password, description):
     config = get_running_config(request, password)
     object_name = datetime.now().strftime("backup-%Y-%m-%d-%H:%M%S.xml")
-    swift.swift_api(request).put_object("CyberaVFS/backups", object_name, contents=config)
+    headers = {}
+    headers['X-Object-Meta-Description'] = description
+    swift.swift_api(request).put_object("CyberaVFS/backups", object_name, contents=config, headers=headers)
 
 def get_backups(request):
     """ Return list of backup metadata (date, id) not the backups themselves """
     backups = []
     objects = swift.swift_get_objects(request, "CyberaVFS", "backups/")
     for o in objects[0]:
-        backups.append({"id": o['name'], "date":o['last_modified']})
+        headers = swift.swift_api(request).head_object("CyberaVFS", o['name'])
+        backups.append({"id": o['name'], "date":o['last_modified'], "description": headers.get('x-object-meta-description', '')})
     return sorted(backups, key=lambda backup: backup["date"], reverse=True)
 
 def recover_instance(request, backup_id, deact_key, password):

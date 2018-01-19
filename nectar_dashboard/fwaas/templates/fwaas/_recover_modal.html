@@ -9,6 +9,7 @@ Recover
   <thead>
     <tr class="table_column_header">
       <th class="normal_column">Date</th>
+      <th class="normal_column">Description</th>
       <th class="actions_column">Action</th>
     </tr>
   </thead>
@@ -16,6 +17,7 @@ Recover
     {% for b in backups %}
     <tr>
       <td class="normal_column">{{ b.date }}</td>
+      <td class="normal_column">{{ b.description }}</td>
       <td class="actions_column">
         <button id="btn_recover_{{ b.id }}" type="button" class="btn btn-primary btn_recover" data-dismiss="modal">Recover</button>
       </td>

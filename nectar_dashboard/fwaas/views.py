@@ -88,7 +88,8 @@ def backup(request):
         form = forms.BackupForm(request.POST)
         if form.is_valid():
             password = form.cleaned_data["password"]
-            fwaas.create_backup(request, password)
+            description = form.cleaned_data["description"]
+            fwaas.create_backup(request, password, description)
         else:
             show_form_errors(request, form)
     return JsonResponse({})
