@@ -60,13 +60,31 @@ class RemoveMembers(tables.DeleteAction):
         user_obj = self.table.get_object_by_id(obj_id)
         project_id = request.user.tenant_id
         project_admin_user_id = request.user.id
-        LOG.info('Removing user %s from project %s.' % (user_obj.id,
-                                                      project_id))
-        keystone_api.remove_tenant_user_role(request,
-                                             project=project_id,
-                                             user=user_obj.id,
-                                             role="9fe2ff9ee4384b1894a90878d3e92bab")
 
+        removed = False
+        LOG.info('Removing user %s from project %s.' % (user_obj.id,
+                                                        project_id))
+        try:
+            keystone_api.remove_tenant_user_role(request,
+                                                 project=project_id,
+                                                 user=user_obj.id,
+                                                 role="9fe2ff9ee4384b1894a90878d3e92bab")
+            removed = True
+        except:
+            pass
+
+        try:
+            keystone_api.remove_tenant_user_role(request,
+                                                 project=project_id,
+                                                 user=user_obj.id,
+                                                 role="bdfee2f5869f43508a4f881164d04c16")
+            removed = True
+        except:
+            pass
+
+        if not removed:
+            LOG.info('User %s was not removed from project %s.' % (user_obj.id, project_id))
+            raise Exception('Unable to remove user')
 
 class AddMembersLink(tables.LinkAction):
     name = "add_user_link"

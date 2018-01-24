@@ -44,7 +44,7 @@ class AddUserToProjectForm(forms.SelfHandlingForm):
         keystone_api.add_tenant_user_role(request,
                                           project=project_id,
                                           user=user.id,
-                                          role="9fe2ff9ee4384b1894a90878d3e92bab")
+                                          role="bdfee2f5869f43508a4f881164d04c16")
         messages.success(request,
                          _('User added successfully.'))
         return True
