@@ -58,8 +58,8 @@ class RACInstanceData(TemplateView):
             'instance_actual_cpu_time': "aliasByNode(derivative(summarize(projects.%s.instances.%s.cpu.cpu_time, '10min', 'avg')), 5)" % (project_id, instance_id),
             'instance_actual_memory': "aliasByNode(scale(projects.%s.instances.%s.memory.available, 1024), 5)&target=aliasByNode(scale(projects.%s.instances.%s.memory.used,1024),5)&yMin=0" % (project_id, instance_id, project_id, instance_id),
             'instance_actual_network_bytes': "aliasByNode(derivative(summarize(projects.%s.instances.%s.interface.eth0.rx_bytes, '10min', 'max')), 6)&target=aliasByNode(derivative(summarize(projects.%s.instances.%s.interface.eth0.tx_bytes,'10min','max')),6)&yMin=0" % (project_id, instance_id, project_id, instance_id),
-            'instance_actual_disk_usage': "aliasByNode(projects.%s.instances.%s.disk.vda.bytes_used,6)&yMin=0" % (project_id, instance_id),
-            'instance_actual_disk_io': "aliasByNode(derivative(summarize(projects.%s.instances.%s.disk.vda.wr_req,'10min','avg')),6)&target=aliasByNode(derivative(summarize(projects.%s.instances.%s.disk.vda.rd_req,'10min','avg')), 6)&yMin=0" % (project_id, instance_id, project_id, instance_id),
+            'instance_actual_disk_usage': "aliasByNode(projects.%s.instances.%s.disk.sda.bytes_used,6)&yMin=0" % (project_id, instance_id),
+            'instance_actual_disk_io': "aliasByNode(derivative(summarize(projects.%s.instances.%s.disk.sda.wr_req,'10min','avg')),6)&target=aliasByNode(derivative(summarize(projects.%s.instances.%s.disk.sda.rd_req,'10min','avg')), 6)&yMin=0" % (project_id, instance_id, project_id, instance_id),
         }
 
         query = self.request.GET.get('query', False)
