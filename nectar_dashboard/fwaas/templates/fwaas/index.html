@@ -1,26 +1,36 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
+{% block css %}
+  {% include "_stylesheets.html" %}
+  {% load compress %}
+  {% compress css %}
+  <link href='{{ STATIC_URL }}fwaas/scss/fwaas.scss' type='text/scss' media='screen' rel='stylesheet' />
+  {% endcompress %}
+{% endblock %}
+
 {% block title %}{% trans "CyberaVFS" %}{% endblock %}
 
 {% block page_header %}
   {% include "horizon/common/_page_header.html" with title=_("CyberaVFS") %}
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300" rel="stylesheet"> 
 {% endblock page_header %}
 
 {% block main %}
 <div class="row-fluid">
-  <div class="span12">
-    <div class="btn-group btn-group-lg" role="group">
-      <button id="btn_launch_modal" type="button" class="btn" data-toggle="modal" data-target="#modal_launch" {{launch_enabled | yesno:",disabled"}}>Launch</button>
-      <button id="btn_backup_modal" type="button" class="btn" data-toggle="modal" data-target="#modal_backup" {{backup_enabled | yesno:",disabled"}}>Backup</button>
-      <button id="btn_recover_modal" type="button" class="btn" {{backup_enabled | yesno:",disabled"}}>Recover</button>
-      <button id="btn_upgrade_modal" type="button" class="btn" data-toggle="modal" data-target="#modal_upgrade" {{upgradeable | yesno:",disabled"}}>Upgrade</button>
-    </div>
+  <div class="span12 fwaas-span">
+    <img class="fwaas-logo" src="{{ STATIC_URL }}fwaas/img/logo.png">
   </div>
-  <div id="firewall_status" class="span12">
-    <strong>Status:</strong> {{ status }}
+  <div class="span12 fwaas-span">
+    <button id="btn_launch_modal" type="button" class="btn btn-lg fwaas-btn" data-toggle="modal" data-target="#modal_launch" {{launch_enabled | yesno:",disabled"}}>Launch</button>
+    <button id="btn_backup_modal" type="button" class="btn btn-lg fwaas-btn" data-toggle="modal" data-target="#modal_backup" {{backup_enabled | yesno:",disabled"}}>Backup</button>
+    <button id="btn_recover_modal" type="button" class="btn btn-lg fwaas-btn" {{backup_enabled | yesno:",disabled"}}>Recover</button>
+    <button id="btn_upgrade_modal" type="button" class="btn btn-lg fwaas-btn" data-toggle="modal" data-target="#modal_upgrade" {{upgradeable | yesno:",disabled"}}>Upgrade</button>
   </div>
-  <div id="firewall_url" class="span12" {{backup_enabled | yesno:",hidden"}}>
+  <div id="firewall_status" class="span12 fwaas-span">
+    STATUS: {{ status }}
+  </div>
+  <div id="firewall_url" class="span12 fwaas-span" {{backup_enabled | yesno:",hidden"}}>
     <a href="https://{{ addr }}">Management interface</a> (Must be using the VPN)
   </div>
 </div>
