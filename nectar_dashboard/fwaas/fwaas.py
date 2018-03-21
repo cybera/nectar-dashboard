@@ -210,6 +210,10 @@ def get_recent_image(request):
 
 def get_ipv4_address(request):
     instance = get_instance(request)
+
+    if instance is None:
+        return None
+
     for x in instance.addresses['default']:
         if x['version'] == 4:
             return x['addr']
@@ -232,6 +236,9 @@ def get_status(request):
         return Status.UNKNOWN
 
     addr = get_ipv4_address(request)
+
+    if addr is None:
+        return Status.UNKNOWN
 
     resp = None
     try:
