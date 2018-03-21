@@ -12,8 +12,7 @@
 {% block title %}{% trans "CyberaVFS" %}{% endblock %}
 
 {% block page_header %}
-  {% include "horizon/common/_page_header.html" with title=_("CyberaVFS") %}
-  <link href="https://fonts.googleapis.com/css?family=Roboto:300" rel="stylesheet"> 
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300" rel="stylesheet">
 {% endblock page_header %}
 
 {% block main %}
@@ -25,7 +24,7 @@
     <button id="btn_launch_modal" type="button" class="btn btn-lg fwaas-btn" data-toggle="modal" data-target="#modal_launch" {{launch_enabled | yesno:",disabled"}}>Launch</button>
     <button id="btn_backup_modal" type="button" class="btn btn-lg fwaas-btn" data-toggle="modal" data-target="#modal_backup" {{backup_enabled | yesno:",disabled"}}>Backup</button>
     <button id="btn_recover_modal" type="button" class="btn btn-lg fwaas-btn" {{backup_enabled | yesno:",disabled"}}>Recover</button>
-    <button id="btn_upgrade_modal" type="button" class="btn btn-lg fwaas-btn" data-toggle="modal" data-target="#modal_upgrade" {{upgradeable | yesno:",disabled"}}>Upgrade</button>
+    <button id="btn_upgrade_modal" type="button" class="btn btn-lg fwaas-btn fwaas-last" data-toggle="modal" data-target="#modal_upgrade" {{upgradeable | yesno:",disabled"}}>Upgrade</button>
   </div>
   <div id="firewall_status" class="span12 fwaas-span">
     STATUS: {{ status }}
@@ -128,7 +127,7 @@ function updateStatus() {
       var status = data["status"];
       var upgradeable = data["upgradeable"];
       var addr = data["address"];
-      $("#firewall_status").html("<strong>Status:</strong> " + data["status"]);
+      $("#firewall_status").html("<strong>STATUS:</strong> " + data["status"]);
       if (status == "Not running") {
         $("#btn_launch_modal").prop('disabled', false);
         $("#btn_backup_modal").prop('disabled', true);
