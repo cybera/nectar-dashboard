@@ -44,7 +44,11 @@
 								  {% comment "jt" %}{% endcomment %}
                 	{% if request.user.is_authenticated and message %}
                   	{% autoescape off %}
-                  	<p class="alert alert-rac">{{ message }}</p>
+                    {% if message_type == 'general' %}
+                      <p class="alert alert-info info-rac">{{ message }}</p>
+                    {% else %}
+                  	  <p class="alert alert-rac">{{ message }}</p>
+                    {% endif %}
                   	{% endautoescape %}
                 	{% endif %}
 

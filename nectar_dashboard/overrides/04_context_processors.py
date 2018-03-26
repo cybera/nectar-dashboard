@@ -84,10 +84,13 @@ def cyberaOpenstack(request):
     context['JS_CATALOG'] = '+'.join(js_catalog)
 
     # jt
-    message = helpers.get_message("admin")
+    m = helpers.get_message("admin")
+    message = m[0]
+    message_type = m[1]
     context['message'] = ""
     if message != "" and message != None:
         context['message'] = message
+        context['message_type'] = message_type
     return context
 
 context_processors.openstack = cyberaOpenstack

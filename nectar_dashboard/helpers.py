@@ -166,23 +166,23 @@ def get_message(project_id):
     try:
         db = _dbconnect()
         c = db.cursor()
-        query = "SELECT message from messages where project_id = %s"
+        query = "SELECT message, message_type from messages where project_id = %s"
         data = [project_id]
         c.execute(query, data)
         message = c.fetchone()
         if message is not None:
-            return message[0]
+            return message[0], message[1]
         return ""
     except MySQLdb.Error, e:
         print(str(e))
         return ""
 
-def set_message(project_id, message):
+def set_message(project_id, message, message_type):
     try:
         db = _dbconnect()
         c = db.cursor()
-        query = "INSERT INTO messages (project_id, message) VALUES (%s, %s) ON DUPLICATE KEY UPDATE message = %s"
-        data = (project_id, message, message)
+        query = "INSERT INTO messages (project_id, message, message_type) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE message = %s, message_type = %s"
+        data = (project_id, message, message_type, message, message_type)
         c.execute(query, data)
         db.commit()
     except Exception as e:
