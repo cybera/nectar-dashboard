@@ -172,7 +172,7 @@ def get_message(project_id):
         message = c.fetchone()
         if message is not None:
             return message[0], message[1]
-        return ""
+        return "", ""
     except MySQLdb.Error, e:
         print(str(e))
         return ""
