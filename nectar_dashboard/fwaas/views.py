@@ -19,6 +19,9 @@ def handle_openstack_errors(func):
             return func(*args, **kwargs)
         except swiftclient.ClientException:
             messages.error(args[0], _('Missing file in container'))
+        except heatclient.ClientException:
+            print args
+            messages.error(args[0], _(''))
         return JsonResponse({})
 
     return _wrapper
