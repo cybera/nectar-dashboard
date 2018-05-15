@@ -7,6 +7,7 @@ from horizon import messages
 from horizon.exceptions import NotAuthorized
 
 from swiftclient import client as swiftclient
+from heatclient import exc as heatexc
 
 from nectar_dashboard.fwaas import fwaas
 from nectar_dashboard.fwaas import forms
@@ -18,10 +19,9 @@ def handle_openstack_errors(func):
         try:
             return func(*args, **kwargs)
         except swiftclient.ClientException:
-            messages.error(args[0], _('Missing file in container'))
-        except heatclient.ClientException:
-            print args
-            messages.error(args[0], _(''))
+            messages.error(args[0], _('Missing file in container, or no CyberaVFS container'))
+        except heatexc.HTTPException:
+            messages.error(args[0], _('No permission for flavor and/or image'))
         return JsonResponse({})
 
     return _wrapper
