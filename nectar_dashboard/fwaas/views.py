@@ -13,6 +13,19 @@ from nectar_dashboard.fwaas import forms
 
 import requests
 
+def handle_openstack_errors(func):
+    def _wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except swiftclient.ClientException:
+            messages.error(args[0], _('Missing file in container'))
+        except heatclient.ClientException:
+            print args
+            messages.error(args[0], _(''))
+        return JsonResponse({})
+
+    return _wrapper
+
 
 def handle_panos_errors(func):
     def _wrapper(*args, **kwargs):
@@ -68,6 +81,7 @@ class RecoverView(TemplateView):
             backups = []
         return render(request, self.template_name, {"backups": backups, "action": "recover"})
 
+@handle_openstack_errors
 def launch(request):
     if fwaas.instance_exists(request):
         messages.error(request, _('Firewall instance already exists'))
