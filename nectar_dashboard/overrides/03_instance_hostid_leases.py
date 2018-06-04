@@ -13,6 +13,8 @@ from openstack_dashboard.dashboards.project.instances import tables as project_t
 from openstack_dashboard.dashboards.project.instances import tabs as project_tabs
 
 import datetime
+import pytz
+from pytz import timezone
 from dateutil import parser
 from nectar_dashboard import helpers
 
@@ -109,13 +111,21 @@ class CyberaDetailView(tabs.TabView):
             if self.request.GET.get('lease_time', False):
                 lease_time = int(self.request.GET.get('lease_time'))
                 if lease_time in [1, 3]:
-                    new_lease = datetime.datetime.now() + datetime.timedelta(days=lease_time)
+                    new_lease = datetime.datetime.utcnow() + datetime.timedelta(days=lease_time)
                     helpers.set_instance_lease(instance.id, project_id, region, new_lease)
 
             lease_date = helpers.get_instance_lease(instance.id, project_id, region)
+
+            # lease_date is in UTC. Convert to America/Edmonton timezone for display in dashboard
+            fmt = "%b %d, %Y %H:%M %p"
+            edm = timezone('America/Edmonton')
             if lease_date is None:
                 lease_date = parser.parse(instance.created)+datetime.timedelta(days=1)
-            instance.lease_date = lease_date
+                instance.lease_date = lease_date.astimezone(edm).strftime(fmt)
+            else:
+                utc_dt = pytz.utc.localize(parser.parse(lease_date))
+                edm_lease_date = utc_dt.astimezone(edm).strftime(fmt)
+                instance.lease_date = edm_lease_date
         else:
             instance.leased = False
 
