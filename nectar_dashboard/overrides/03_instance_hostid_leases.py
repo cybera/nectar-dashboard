@@ -124,8 +124,7 @@ class CyberaDetailView(tabs.TabView):
                 instance.lease_date = lease_date.astimezone(edm).strftime(fmt)
             else:
                 utc_dt = pytz.utc.localize(parser.parse(lease_date))
-                edm_lease_date = utc_dt.astimezone(edm).strftime(fmt)
-                instance.lease_date = edm_lease_date
+                instance.lease_date = utc_dt.astimezone(edm).strftime(fmt)
         else:
             instance.leased = False
 
