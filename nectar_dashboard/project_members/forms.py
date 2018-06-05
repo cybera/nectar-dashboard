@@ -28,6 +28,7 @@ from openstack_dashboard import api
 
 # jt
 from . import keystone as keystone_api
+from .constants import _MEMBER_ROLE_ID
 
 LOG = logging.getLogger(__name__)
 
@@ -40,11 +41,15 @@ class AddUserToProjectForm(forms.SelfHandlingForm):
         project_id = request.user.tenant_id
         project_admin_user_id = request.user.id
 
-        user = keystone_api.user_get_by_name(request, data['email'])
-        keystone_api.add_tenant_user_role(request,
-                                          project=project_id,
-                                          user=user.id,
-                                          role="bdfee2f5869f43508a4f881164d04c16")
+        try:
+            user = keystone_api.user_get_by_name(request, data['email'])
+            if user is not None:
+                keystone_api.add_tenant_user_role(request,
+                                                  project=project_id,
+                                                  user=user.id,
+                                                  role=_MEMBER_ROLE_ID)
+        except Exception as e:
+            print("ERROR:", e)
         messages.success(request,
                          _('User added successfully.'))
         return True

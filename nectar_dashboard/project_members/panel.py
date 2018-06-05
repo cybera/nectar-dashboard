@@ -27,6 +27,6 @@ class Members(horizon.Panel):
     def allowed(self, context):
 	request = context['request']
 	for role in request.user.roles:
-	    if role['name'] == 'Project Admin':
+	    if role['name'] == 'project_admin':
                 return True
         return False

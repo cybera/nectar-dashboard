@@ -337,7 +337,12 @@ def user_get(request, user_id, admin=True):
 
 def user_get_by_name(request, name, admin=True):
     manager = VERSIONS.get_project_manager_users(request, admin=admin)
-    return manager._get("/users?name=%s" % name, "user")
+    kwargs = {"name": name}
+    users =  manager.list(project=None, domain=None, group=None, default_project=None, **kwargs)
+    if len(users) > 0:
+        return users[0]
+    else:
+        return None
 
 def user_update(request, user, **data):
     manager = keystoneclient(request, admin=True).users
@@ -524,7 +529,7 @@ def role_assignments_list(request, project=None, user=None, role=None,
 
     manager = keystoneclient(request, admin=True).role_assignments
     return manager.list(project=project, user=user, role=role, group=group,
-                        domain=domain, effective=effective)
+                        domain=domain, effective=effective, include_names=True)
 
 
 def role_create(request, name):
@@ -557,7 +562,7 @@ def get_role_by_name(request, user_id, project_id, role_name):
     if VERSIONS.active < 3:
         roles = manager.roles_for_user(user_id, project_id)
     else:
-        roles = manager.list(user=user_id, domain="default", project=project_id)
+        roles = manager.list(user=user_id, project=project_id)
 
     for role in roles:
         if role.name == role_name:

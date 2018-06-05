@@ -32,6 +32,7 @@ from .forms import AddUserToProjectForm
 from .tables import ProjectMembersTable
 
 # jt
+from collections import namedtuple
 from . import keystone as keystone_api
 import logging
 LOG = logging.getLogger(__name__)
@@ -52,15 +53,21 @@ class ProjectManageMixin(object):
         if not hasattr(self, "_project_members"):
             tenant_id = self.request.user.tenant_id
             project_admin_user_id = self.request.user.id
-            role = keystone_api.get_role_by_name(self.request, project_admin_user_id, tenant_id, "Project Admin")
+            role = keystone_api.get_role_by_name(self.request, project_admin_user_id, tenant_id, "project_admin")
             member_role_id = role.id
-	    users = keystone_api.user_list(
+	    assignments = keystone_api.role_assignments_list(
 		    self.request,
 		    project=tenant_id)
+            unique_users = {}
+	    for assignment in assignments:
+		if assignment.user['name'] != "admin" and assignment.user['name'] != "cyberabot":
+                    unique_users[assignment.user['id']] = assignment.user['name']
+
 	    project_members = []
-	    for user in users:
-		if user.name != "admin" and user.name != "cyberabot":
-		    project_members.append(user)
+            User = namedtuple('User', 'id name')
+            for user_id, name in unique_users.iteritems():
+                u = User(id=user_id, name=name)
+		project_members.append(u)
             self._project_members = project_members
 
         return self._project_members
@@ -82,7 +89,7 @@ class ManageMembersView(ProjectManageMixin, tables.DataTableView):
         project_members = []
         try:
             project_members = self._get_project_members()
-        except:
+        except Exception as e:
             exceptions.handle(self.request,
                               _('Unable to retrieve project users.'))
         return project_members

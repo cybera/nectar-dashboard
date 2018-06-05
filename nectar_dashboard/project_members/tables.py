@@ -29,6 +29,8 @@ from .constants import PROJECTS_ADD_MEMBER_URL
 
 # jt
 from . import keystone as keystone_api
+from .constants import _MEMBER_ROLE_ID
+from .constants import MEMBER_ROLE_ID
 
 LOG = logging.getLogger(__name__)
 
@@ -68,7 +70,7 @@ class RemoveMembers(tables.DeleteAction):
             keystone_api.remove_tenant_user_role(request,
                                                  project=project_id,
                                                  user=user_obj.id,
-                                                 role="9fe2ff9ee4384b1894a90878d3e92bab")
+                                                 role=_MEMBER_ROLE_ID)
             removed = True
         except:
             pass
@@ -77,7 +79,7 @@ class RemoveMembers(tables.DeleteAction):
             keystone_api.remove_tenant_user_role(request,
                                                  project=project_id,
                                                  user=user_obj.id,
-                                                 role="bdfee2f5869f43508a4f881164d04c16")
+                                                 role=MEMBER_ROLE_ID)
             removed = True
         except:
             pass
