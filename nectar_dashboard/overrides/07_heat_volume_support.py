@@ -28,8 +28,6 @@ def volume_field_data(request, include_empty_option=False):
     volume_list = []
     try:
         volumes = api.cinder.volume_list(request)
-        for v in volumes:
-            LOG.error(v)
         volume_list = [(volume.id, volume.name) for volume in volumes if len(volume.attachments) == 0]
     except Exception:
         exceptions.handle(request, _('Unable to retrieve volumes.'))
@@ -191,7 +189,6 @@ class CyberaCreateStackForm(forms.SelfHandlingForm):
             exceptions.handle(request)
 
     def _populate_custom_choices(self, custom_type):
-        LOG.error("FOO: %s" % (custom_type))
         if custom_type == 'neutron.network':
             return instance_utils.network_field_data(self.request, True)
         if custom_type == 'nova.keypair':
