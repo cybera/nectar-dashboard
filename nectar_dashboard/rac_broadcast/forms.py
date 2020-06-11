@@ -1,15 +1,9 @@
 import logging
 
-from django import forms
-from django.conf import settings
-from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
-from horizon import exceptions
 from horizon import forms
 from horizon import messages
-
-from openstack_dashboard import api
 
 from nectar_dashboard import helpers
 
@@ -18,6 +12,7 @@ from . import utils
 LOG = logging.getLogger(__name__)
 
 MESSAGE_TYPES = (('general', 'General',), ('alert', 'Alert',))
+
 
 class RACBroadcastForm(forms.SelfHandlingForm):
     message = forms.CharField(max_length=750, label=_("Broadcast Message"), required=False)
