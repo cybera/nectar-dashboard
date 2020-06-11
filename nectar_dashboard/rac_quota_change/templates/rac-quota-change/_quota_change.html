@@ -1,0 +1,53 @@
+{% load form_helpers %}
+{% load i18n %}
+
+<form id="rac_quota_change_form"
+      method="POST"
+      action="."
+      {% block form_validation %}{% endblock %}
+      {% if add_to_field %}data-add-to-field="{{ add_to_field }}"{% endif %} {% block form_attrs %}{% endblock %}>
+  {% csrf_token %}
+
+  <div class="modal-body clearfix">
+    <div class="row">
+      <div class="col-sm-12">
+        <table width="100%">
+          <tr>
+            <th width="50%">Resource</th>
+            <th width="25%">Current Quota</th>
+            <th width="25%">Requested</th>
+          </tr>
+
+          <tr>
+            <td>Floating IP</td>
+            <td>{{ current_quota.floating_ips.quota }}</td>
+            <td>
+              {{ form.floating_ips|add_bootstrap_class }}
+              {% for error in form.floating_ips.errors %}
+                <span class="help-block {{ form.error_css_class }}">{{ error }}</span>
+              {% endfor %}
+            </td>
+          </tr>
+        </table>
+
+        <br>
+
+        <div class="form-group{% if form.reason.errors %} has-error{% endif %} {{ form.reason.css_classes }}">
+          <label class="control-label {{ classes.label }} {% if form.reason.field.required %}{{ form.reason.required_css_class }}{% endif %}" for="{{ field.auto_id }}">
+            <span class="field-label">{{ form.reason.label }} *</span>
+          </label>
+          {{ form.reason|add_bootstrap_class }}
+					{% for error in form.reason.errors %}
+  					<span class="help-block {{ form.error_css_class }}">{{ error }}</span>
+					{% endfor %}
+        </div>
+
+
+        <br><br><br>
+
+        <input class="btn btn-primary pull-right" type="submit" value="{% trans "Submit a Quota Change Request" %}" />
+        <a href="." class="btn secondary cancel close">{% trans "Cancel" %}</a>
+      </div>
+    </div>
+  </div>
+</form>
