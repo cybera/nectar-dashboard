@@ -85,12 +85,13 @@ def cyberaOpenstack(request):
 
     # jt
     m = helpers.get_message("admin")
-    message = m[0]
-    message_type = m[1]
-    context['message'] = ""
-    if message != "" and message != None:
-        context['message'] = message
-        context['message_type'] = message_type
+    if len(m) > 0:
+        message = m[0]
+        message_type = m[1]
+        context['message'] = ""
+        if message != "" and message is not None:
+            context['message'] = message
+            context['message_type'] = message_type
     return context
 
 context_processors.openstack = cyberaOpenstack
