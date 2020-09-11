@@ -43,6 +43,8 @@
         </div>
 
         <div class="col-sm-12">You are currently accessing the Rapid Access Cloud over <strong>IPv{{ remote_addr }}</strong></div>
+        <input id="id_{{ form.ipversion.name }}" name="{{ form.ipversion.name }}" type="hidden" value="IPv{{ remote_addr }}" />
+
 
 
         <br><br><br>

@@ -26,6 +26,10 @@ class RACQuotaChangeForm(forms.SelfHandlingForm):
         widget=forms.widgets.Textarea(),
         required=True)
 
+    ipversion = forms.CharField(
+        widget=forms.HiddenInput(),
+        required=True)
+
     class Meta:
         name = _('Quota Change')
 
@@ -46,7 +50,8 @@ class RACQuotaChangeForm(forms.SelfHandlingForm):
             for resource, v in changes.items():
                 email_body += "%s: from %s to %s\n" % (resource, v['current'], v['requested'])
             email_body += "\n\n"
-            email_body += "Reason: %s" % (data['reason'])
+            email_body += "Reason: %s\n\n" % (data['reason'])
+            email_body += "Dashboard accessed via: %s" % (data['ipversion'])
 
             email_destination = getattr(settings, 'RAC_EMAIL_DESTINATION')
 
