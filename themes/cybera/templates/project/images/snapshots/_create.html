@@ -1,0 +1,9 @@
+{% extends "horizon/common/_modal_form.html" %}
+{% load i18n %}
+
+{% block modal-body-right %}
+  <h3>{% trans "Description:" %}</h3>
+  <p>{% trans "A snapshot is an image which preserves the disk state of a running instance." %}</p>
+  <p><font color="red">WARNING: A snapshot will shut off your virtual machine or firewall for up to one hour.</font></p>
+  <p><font color="red">Snapshots are not supported for VFS users. VFS users should make a backup of their firewall configuration instead of a snapshot.</font></p>
+{% endblock %}
